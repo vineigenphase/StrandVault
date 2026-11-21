@@ -1,0 +1,865 @@
+{
+  "generatedAt": "2026-11-21T13:49:52.418Z",
+  "region": "GB",
+  "films": [
+    {
+      "id": 76341,
+      "title": "Mad Max: Fury Road",
+      "year": 2015,
+      "runtime": 120,
+      "overview": "In a post-apocalyptic wasteland, a drifter and a rebel warrior flee a tyrant across the desert in a war rig.",
+      "tagline": "What a lovely day.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF8A3D'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF8A3D'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF8A3D'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EMAD%20MAX%3A%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3EFURY%20ROAD%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        28,
+        12,
+        878
+      ],
+      "aisle": "action",
+      "rating": 7.6,
+      "votes": 22000,
+      "trending": false,
+      "cast": [
+        "Tom Hardy",
+        "Charlize Theron",
+        "Nicholas Hoult"
+      ],
+      "director": "George Miller",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 245891,
+      "title": "John Wick",
+      "year": 2014,
+      "runtime": 101,
+      "overview": "An ex-hitman comes out of retirement to track down the gangsters who took everything from him.",
+      "tagline": "Don't set him off.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF8A3D'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF8A3D'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF8A3D'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EJOHN%20WICK%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        28,
+        53
+      ],
+      "aisle": "action",
+      "rating": 7.4,
+      "votes": 19000,
+      "trending": false,
+      "cast": [
+        "Keanu Reeves",
+        "Michael Nyqvist",
+        "Alfie Allen"
+      ],
+      "director": "Chad Stahelski",
+      "providers": [
+        {
+          "id": "prime",
+          "name": "Prime Video",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 361743,
+      "title": "Top Gun: Maverick",
+      "year": 2022,
+      "runtime": 131,
+      "overview": "After thirty years, Maverick is still pushing the envelope as a top naval aviator, training a new squad.",
+      "tagline": "Feel the need... the need for speed.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF8A3D'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF8A3D'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF8A3D'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ETOP%20GUN%3A%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3EMAVERICK%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        28,
+        18
+      ],
+      "aisle": "action",
+      "rating": 8.2,
+      "votes": 9000,
+      "trending": true,
+      "cast": [
+        "Tom Cruise",
+        "Miles Teller",
+        "Jennifer Connelly"
+      ],
+      "director": "Joseph Kosinski",
+      "providers": [
+        {
+          "id": "paramount",
+          "name": "Paramount+",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "prime",
+          "name": "Prime Video",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 8363,
+      "title": "Superbad",
+      "year": 2007,
+      "runtime": 113,
+      "overview": "Two co-dependent high school seniors try to score alcohol for a party before graduation splits them up.",
+      "tagline": "Come and get some.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FFD300'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FFD300'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FFD300'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ESUPERBAD%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        35
+      ],
+      "aisle": "comedy",
+      "rating": 7.2,
+      "votes": 7500,
+      "trending": false,
+      "cast": [
+        "Jonah Hill",
+        "Michael Cera",
+        "Christopher Mintz-Plasse"
+      ],
+      "director": "Greg Mottola",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 137,
+      "title": "Groundhog Day",
+      "year": 1993,
+      "runtime": 101,
+      "overview": "A cynical weatherman finds himself living the same day again and again.",
+      "tagline": "He's having the worst day of his life... over and over.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FFD300'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FFD300'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FFD300'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EGROUNDHOG%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3EDAY%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        35,
+        14,
+        10749
+      ],
+      "aisle": "comedy",
+      "rating": 7.6,
+      "votes": 7000,
+      "trending": false,
+      "cast": [
+        "Bill Murray",
+        "Andie MacDowell",
+        "Chris Elliott"
+      ],
+      "director": "Harold Ramis",
+      "providers": [
+        {
+          "id": "now",
+          "name": "NOW",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 346648,
+      "title": "Paddington 2",
+      "year": 2017,
+      "runtime": 103,
+      "overview": "Paddington takes odd jobs to buy a gift for Aunt Lucy, until it's stolen and he's framed.",
+      "tagline": "A little bear goes a long way.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FFD300'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FFD300'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FFD300'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EPADDINGTON%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3E2%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        35,
+        10751,
+        12
+      ],
+      "aisle": "comedy",
+      "rating": 7.6,
+      "votes": 2800,
+      "trending": true,
+      "cast": [
+        "Ben Whishaw",
+        "Hugh Grant",
+        "Sally Hawkins"
+      ],
+      "director": "Paul King",
+      "providers": [
+        {
+          "id": "iplayer",
+          "name": "BBC iPlayer",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 419430,
+      "title": "Get Out",
+      "year": 2017,
+      "runtime": 104,
+      "overview": "A young man visits his girlfriend's family estate and uncovers a disturbing secret.",
+      "tagline": "Just because you are invited, does not mean you are welcome.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF3B3B'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF3B3B'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF3B3B'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EGET%20OUT%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        27,
+        9648,
+        53
+      ],
+      "aisle": "horror",
+      "rating": 7.6,
+      "votes": 16000,
+      "trending": false,
+      "cast": [
+        "Daniel Kaluuya",
+        "Allison Williams",
+        "Bradley Whitford"
+      ],
+      "director": "Jordan Peele",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 493922,
+      "title": "Hereditary",
+      "year": 2018,
+      "runtime": 127,
+      "overview": "After their grandmother dies, a family begins to unravel cryptic and terrifying secrets.",
+      "tagline": "Every family tree hides a secret.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF3B3B'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF3B3B'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF3B3B'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EHEREDITARY%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        27,
+        9648
+      ],
+      "aisle": "horror",
+      "rating": 7.3,
+      "votes": 8000,
+      "trending": false,
+      "cast": [
+        "Toni Collette",
+        "Alex Wolff",
+        "Milly Shapiro"
+      ],
+      "director": "Ari Aster",
+      "providers": [
+        {
+          "id": "prime",
+          "name": "Prime Video",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "channel4",
+          "name": "Channel 4",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 242224,
+      "title": "The Babadook",
+      "year": 2014,
+      "runtime": 94,
+      "overview": "A widowed mother and her son are haunted by a sinister presence from a pop-up book.",
+      "tagline": "If it's in a word or it's in a look, you can't get rid of the Babadook.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF3B3B'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF3B3B'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF3B3B'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ETHE%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3EBABADOOK%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        27,
+        18
+      ],
+      "aisle": "horror",
+      "rating": 6.5,
+      "votes": 4500,
+      "trending": false,
+      "cast": [
+        "Essie Davis",
+        "Noah Wiseman",
+        "Hayley McElhinney"
+      ],
+      "director": "Jennifer Kent",
+      "providers": [
+        {
+          "id": "channel4",
+          "name": "Channel 4",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 27205,
+      "title": "Inception",
+      "year": 2010,
+      "runtime": 148,
+      "overview": "A thief who steals secrets through dream-sharing is offered a chance to plant an idea instead.",
+      "tagline": "Your mind is the scene of the crime.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%2300E5FF'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%2300E5FF'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%2300E5FF'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EINCEPTION%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        28,
+        878,
+        12
+      ],
+      "aisle": "scifi",
+      "rating": 8.4,
+      "votes": 36000,
+      "trending": false,
+      "cast": [
+        "Leonardo DiCaprio",
+        "Joseph Gordon-Levitt",
+        "Elliot Page"
+      ],
+      "director": "Christopher Nolan",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "prime",
+          "name": "Prime Video",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 157336,
+      "title": "Interstellar",
+      "year": 2014,
+      "runtime": 169,
+      "overview": "Explorers travel through a wormhole in search of a new home for humanity.",
+      "tagline": "Mankind was born on Earth. It was never meant to die here.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%2300E5FF'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%2300E5FF'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%2300E5FF'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EINTERSTELLAR%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        12,
+        18,
+        878
+      ],
+      "aisle": "scifi",
+      "rating": 8.4,
+      "votes": 34000,
+      "trending": true,
+      "cast": [
+        "Matthew McConaughey",
+        "Anne Hathaway",
+        "Jessica Chastain"
+      ],
+      "director": "Christopher Nolan",
+      "providers": [
+        {
+          "id": "prime",
+          "name": "Prime Video",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 329865,
+      "title": "Arrival",
+      "year": 2016,
+      "runtime": 116,
+      "overview": "A linguist is recruited to communicate with mysterious alien visitors.",
+      "tagline": "Why are they here?",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%2300E5FF'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%2300E5FF'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%2300E5FF'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EARRIVAL%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        18,
+        878,
+        9648
+      ],
+      "aisle": "scifi",
+      "rating": 7.6,
+      "votes": 18000,
+      "trending": false,
+      "cast": [
+        "Amy Adams",
+        "Jeremy Renner",
+        "Forest Whitaker"
+      ],
+      "director": "Denis Villeneuve",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 496243,
+      "title": "Parasite",
+      "year": 2019,
+      "runtime": 133,
+      "overview": "A poor family schemes its way into the lives of a wealthy household.",
+      "tagline": "Act like you own the place.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23B388FF'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23B388FF'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23B388FF'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EPARASITE%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        35,
+        53,
+        18
+      ],
+      "aisle": "drama",
+      "rating": 8.5,
+      "votes": 18000,
+      "trending": false,
+      "cast": [
+        "Song Kang-ho",
+        "Lee Sun-kyun",
+        "Cho Yeo-jeong"
+      ],
+      "director": "Bong Joon-ho",
+      "providers": [
+        {
+          "id": "prime",
+          "name": "Prime Video",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 244786,
+      "title": "Whiplash",
+      "year": 2014,
+      "runtime": 107,
+      "overview": "A young drummer enrols at a cut-throat conservatory under a ruthless instructor.",
+      "tagline": "The road to greatness can take you to the edge.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23B388FF'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23B388FF'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23B388FF'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EWHIPLASH%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        18,
+        10402
+      ],
+      "aisle": "drama",
+      "rating": 8.4,
+      "votes": 15000,
+      "trending": false,
+      "cast": [
+        "Miles Teller",
+        "J.K. Simmons",
+        "Melissa Benoist"
+      ],
+      "director": "Damien Chazelle",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 278,
+      "title": "The Shawshank Redemption",
+      "year": 1994,
+      "runtime": 142,
+      "overview": "Two imprisoned men bond over years, finding solace and redemption.",
+      "tagline": "Fear can hold you prisoner. Hope can set you free.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23B388FF'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23B388FF'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23B388FF'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ETHE%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3ESHAWSHANK%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'202'%20text-anchor%3D'middle'%3EREDEMPTION%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        18,
+        80
+      ],
+      "aisle": "drama",
+      "rating": 8.7,
+      "votes": 27000,
+      "trending": false,
+      "cast": [
+        "Tim Robbins",
+        "Morgan Freeman",
+        "Bob Gunton"
+      ],
+      "director": "Frank Darabont",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "buy"
+        }
+      ]
+    },
+    {
+      "id": 313369,
+      "title": "La La Land",
+      "year": 2016,
+      "runtime": 128,
+      "overview": "A jazz pianist and an aspiring actress fall in love in Los Angeles.",
+      "tagline": "Here's to the fools who dream.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF2E88'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF2E88'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF2E88'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ELA%20LA%20LAND%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        35,
+        18,
+        10749,
+        10402
+      ],
+      "aisle": "romance",
+      "rating": 7.9,
+      "votes": 17000,
+      "trending": false,
+      "cast": [
+        "Ryan Gosling",
+        "Emma Stone",
+        "John Legend"
+      ],
+      "director": "Damien Chazelle",
+      "providers": [
+        {
+          "id": "prime",
+          "name": "Prime Video",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "title": "Before Sunrise",
+      "year": 1995,
+      "runtime": 101,
+      "overview": "Two strangers meet on a train and spend one night walking through Vienna.",
+      "tagline": "Can the greatest romance of your life last only one night?",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF2E88'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF2E88'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF2E88'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EBEFORE%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3ESUNRISE%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        18,
+        10749
+      ],
+      "aisle": "romance",
+      "rating": 7.7,
+      "votes": 3500,
+      "trending": false,
+      "cast": [
+        "Ethan Hawke",
+        "Julie Delpy",
+        "Andrea Eckert"
+      ],
+      "director": "Richard Linklater",
+      "providers": [
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 4348,
+      "title": "Pride & Prejudice",
+      "year": 2005,
+      "runtime": 129,
+      "overview": "Sparks fly when spirited Elizabeth Bennet meets the proud Mr Darcy.",
+      "tagline": "Sometimes the last person on earth you want to be with is the one person you can’t be without.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23FF2E88'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23FF2E88'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23FF2E88'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EPRIDE%20%26amp%3B%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3EPREJUDICE%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        18,
+        10749
+      ],
+      "aisle": "romance",
+      "rating": 7.9,
+      "votes": 7500,
+      "trending": false,
+      "cast": [
+        "Keira Knightley",
+        "Matthew Macfadyen",
+        "Brenda Blethyn"
+      ],
+      "director": "Joe Wright",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "now",
+          "name": "NOW",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "title": "Spirited Away",
+      "year": 2001,
+      "runtime": 125,
+      "overview": "A girl wanders into a world of spirits and must free her parents.",
+      "tagline": "The tunnel led Chihiro to a mysterious town...",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%231DE9B6'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%231DE9B6'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%231DE9B6'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ESPIRITED%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3EAWAY%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        16,
+        10751,
+        14
+      ],
+      "aisle": "animated",
+      "rating": 8.5,
+      "votes": 16000,
+      "trending": false,
+      "cast": [
+        "Rumi Hiiragi",
+        "Miyu Irino",
+        "Mari Natsuki"
+      ],
+      "director": "Hayao Miyazaki",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 862,
+      "title": "Toy Story",
+      "year": 1995,
+      "runtime": 81,
+      "overview": "A cowboy doll feels threatened when a new space ranger toy becomes the favourite.",
+      "tagline": "The adventure takes off!",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%231DE9B6'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%231DE9B6'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%231DE9B6'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ETOY%20STORY%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        16,
+        12,
+        10751,
+        35
+      ],
+      "aisle": "animated",
+      "rating": 8,
+      "votes": 18000,
+      "trending": false,
+      "cast": [
+        "Tom Hanks",
+        "Tim Allen",
+        "Don Rickles"
+      ],
+      "director": "John Lasseter",
+      "providers": [
+        {
+          "id": "disney",
+          "name": "Disney+",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 324857,
+      "title": "Spider-Man: Into the Spider-Verse",
+      "year": 2018,
+      "runtime": 117,
+      "overview": "Teen Miles Morales becomes Spider-Man and meets heroes from other dimensions.",
+      "tagline": "More than one wears the mask.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%231DE9B6'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%231DE9B6'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%231DE9B6'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ESPIDER-MAN%3A%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3EINTO%20THE%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'202'%20text-anchor%3D'middle'%3ESPIDER-VERSE%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        16,
+        28,
+        12,
+        878
+      ],
+      "aisle": "animated",
+      "rating": 8.4,
+      "votes": 15000,
+      "trending": true,
+      "cast": [
+        "Shameik Moore",
+        "Jake Johnson",
+        "Hailee Steinfeld"
+      ],
+      "director": "Peter Ramsey",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "disney",
+          "name": "Disney+",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 78,
+      "title": "Blade Runner",
+      "year": 1982,
+      "runtime": 117,
+      "overview": "A blade runner must pursue and terminate four replicants in Los Angeles, 2019.",
+      "tagline": "Man has made his match... now it’s his problem.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23C6FF00'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23C6FF00'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23C6FF00'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EBLADE%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3ERUNNER%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        878,
+        18,
+        53
+      ],
+      "aisle": "cult",
+      "rating": 7.9,
+      "votes": 13000,
+      "trending": false,
+      "cast": [
+        "Harrison Ford",
+        "Rutger Hauer",
+        "Sean Young"
+      ],
+      "director": "Ridley Scott",
+      "providers": [
+        {
+          "id": "prime",
+          "name": "Prime Video",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "apple",
+          "name": "Apple TV",
+          "url": "",
+          "kind": "rent"
+        }
+      ]
+    },
+    {
+      "id": 105,
+      "title": "Back to the Future",
+      "year": 1985,
+      "runtime": 116,
+      "overview": "A teenager is accidentally sent thirty years into the past in a time-travelling DeLorean.",
+      "tagline": "He's the only kid ever to get into trouble before he was born.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23C6FF00'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23C6FF00'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23C6FF00'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3EBACK%20TO%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3ETHE%20FUTURE%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        12,
+        35,
+        878
+      ],
+      "aisle": "cult",
+      "rating": 8.3,
+      "votes": 19000,
+      "trending": true,
+      "cast": [
+        "Michael J. Fox",
+        "Christopher Lloyd",
+        "Lea Thompson"
+      ],
+      "director": "Robert Zemeckis",
+      "providers": [
+        {
+          "id": "netflix",
+          "name": "Netflix",
+          "url": "",
+          "kind": "stream"
+        },
+        {
+          "id": "now",
+          "name": "NOW",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    },
+    {
+      "id": 2493,
+      "title": "The Princess Bride",
+      "year": 1987,
+      "runtime": 98,
+      "overview": "A farmhand turned pirate sets out to rescue his true love from a villainous prince.",
+      "tagline": "Heroes. Giants. Villains. Wizards. True Love.",
+      "poster": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20200%20300'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%232A0B45'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%230B0620'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D'200'%20height%3D'300'%20fill%3D'url(%23g)'%2F%3E%3Crect%20x%3D'8'%20y%3D'8'%20width%3D'184'%20height%3D'284'%20fill%3D'none'%20stroke%3D'%23C6FF00'%20stroke-width%3D'4'%2F%3E%3Ccircle%20cx%3D'100'%20cy%3D'70'%20r%3D'34'%20fill%3D'none'%20stroke%3D'%23C6FF00'%20stroke-width%3D'3'%2F%3E%3Cg%20fill%3D'%23C6FF00'%20font-family%3D'monospace'%20font-weight%3D'bold'%20font-size%3D'22'%3E%3Ctext%20x%3D'100'%20y%3D'150'%20text-anchor%3D'middle'%3ETHE%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'176'%20text-anchor%3D'middle'%3EPRINCESS%3C%2Ftext%3E%3Ctext%20x%3D'100'%20y%3D'202'%20text-anchor%3D'middle'%3EBRIDE%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fsvg%3E",
+      "genres": [
+        12,
+        10751,
+        14,
+        35,
+        10749
+      ],
+      "aisle": "cult",
+      "rating": 7.7,
+      "votes": 5000,
+      "trending": false,
+      "cast": [
+        "Cary Elwes",
+        "Robin Wright",
+        "Mandy Patinkin"
+      ],
+      "director": "Rob Reiner",
+      "providers": [
+        {
+          "id": "disney",
+          "name": "Disney+",
+          "url": "",
+          "kind": "stream"
+        }
+      ]
+    }
+  ]
+}

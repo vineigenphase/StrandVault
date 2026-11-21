@@ -1,8 +1,9 @@
 // Catalogue loader + index (BACKEND.md §4.3). Lane BE.
-// T0 version: final signatures, backed by mocks.ts.
-// TODO(BE1): load public/catalogue.json (client: fetch once; server: import JSON), fall back to mocks on failure.
+// Browser fetches /catalogue.json once; server reads the committed file at build.
+// Both fall back to mocks.ts so the demo never renders blank.
 import type { Aisle, Film } from './types';
 import { mockFilms } from './mocks';
+import committedCatalogue from '../../public/catalogue.json';
 
 export interface Catalogue {
   films: Film[];
@@ -33,13 +34,32 @@ export function buildCatalogue(films: Film[]): Catalogue {
   };
 }
 
+const committed = (committedCatalogue as { films?: unknown }).films;
+const committedFilms: Film[] = Array.isArray(committed) && committed.length
+  ? committed as Film[]
+  : mockFilms;
+
 let cached: Catalogue | null = null;
 let pending: Promise<Catalogue> | null = null;
 
-/** Client + server: resolves once, memoised. */
+/** Client + server: resolves once, memoised (BACKEND.md §4.3). */
 export function loadCatalogue(): Promise<Catalogue> {
   if (cached) return Promise.resolve(cached);
-  pending ??= Promise.resolve().then(() => (cached = buildCatalogue(mockFilms)));
+  if (typeof window === 'undefined') {
+    cached = buildCatalogue(committedFilms);
+    return Promise.resolve(cached);
+  }
+  pending ??= fetch('/catalogue.json')
+    .then((res) => {
+      if (!res.ok) throw new Error(`catalogue ${res.status}`);
+      return res.json();
+    })
+    .then((file: { films?: unknown }) => {
+      if (!Array.isArray(file.films) || !file.films.length) throw new Error('empty catalogue');
+      return buildCatalogue(file.films as Film[]);
+    })
+    .catch(() => buildCatalogue(mockFilms))
+    .then((catalogue) => (cached = catalogue));
   return pending;
 }
 
@@ -48,7 +68,7 @@ export function getCatalogueSync(): Catalogue | null {
   return cached;
 }
 
-/** Server-side, synchronous. */
+/** Server-side, synchronous: reads the committed catalogue.json. */
 export function catalogueServer(): Catalogue {
-  return (cached ??= buildCatalogue(mockFilms));
+  return (cached ??= buildCatalogue(committedFilms));
 }
