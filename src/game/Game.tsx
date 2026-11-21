@@ -3,18 +3,24 @@
 // React renders structure (layers, sections, player) once per scene. Everything that moves is
 // written straight onto DOM refs by the loop (CLAUDE.md §1.7). Scene changes are the only state.
 //
+// Multiplayer (G3): joins the realtime store, sends movement at 10 Hz while moving (+ a stop message),
+// and mounts interpolated RemotePlayers for everyone else in the same scene.
+//
 // Dev: ?dummies=8 spawns 8 walking test sprites plus an FPS meter (?fps=1 for the meter alone).
 'use client';
 
-import { useEffect, useRef, useState, type PointerEvent, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent, type RefObject } from 'react';
 import { emit, emitApp, onApp } from '@/lib/events';
 import { mockLook } from '@/lib/mocks';
+import { DEFAULT_STORE_CODE, useStore } from '@/lib/realtime';
 import type { Look } from '@/lib/types';
 import { createCamera, VIEW_H, VIEW_W, type Camera } from './camera';
 import Player, { ACCEL, createPlayerState, PLAYER_H, PLAYER_W, WALK_SPEED, type PlayerState } from './entities/Player';
+import RemotePlayer, { type RemoteHandle } from './entities/RemotePlayer';
 import Rico, { type RicoHandle } from './entities/Rico';
 import { input } from './input';
 import { createLoop } from './loop';
+import { lookHash } from './sprites/characters';
 import { INTERIOR, SECTIONS, sectionById } from './world/interior';
 import { STREET } from './world/street';
 import { createZoneTracker, zoneLabel, type SceneId, type Zone } from './zones';
@@ -29,6 +35,10 @@ export interface GameProps {
   host?: boolean;
   name?: string;
   look?: Look;
+  /** Stable player id (from POST /api/join). Defaults to a per-page-load guest id. */
+  userId?: string;
+  /** Store code / realtime channel. */
+  code?: string;
 }
 
 const WORLDS = { street: STREET, interior: INTERIOR } as const;
@@ -44,6 +54,10 @@ interface Sim {
   spawnX: number | null;    // where to place the player after the next scene change
   timers: number[];
   reduced: boolean;
+  scene: SceneId;
+  userId: string | null;    // set once joined to the realtime store
+  lastSend: number;         // last move broadcast (performance.now ms)
+  sentMoving: boolean;      // last broadcast said moving → owe a stop message
 }
 
 function createSim(scene: SceneId): Sim {
@@ -56,13 +70,33 @@ function createSim(scene: SceneId): Sim {
     spawnX: null,
     timers: [],
     reduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    scene,
+    userId: null,
+    lastSend: 0,
+    sentMoving: false,
   };
+}
+
+const MOVE_INTERVAL_MS = 100; // 10 Hz
+
+let guestId: string | null = null;
+/** Per page load (not sessionStorage: duplicated tabs would share it). */
+function pageGuestId(): string {
+  return (guestId ??= typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `guest-${Math.random().toString(36).slice(2, 12)}`);
 }
 
 const layerWidth = (worldW: number, factor: number) => VIEW_W + Math.max(0, (worldW - VIEW_W) * factor);
 
-export default function Game({ scene: initialScene, host = false, name = 'YOU', look = mockLook }: GameProps) {
+export default function Game({ scene: initialScene, host = false, name = 'YOU', look = mockLook, userId, code = DEFAULT_STORE_CODE }: GameProps) {
   const [scene, setScene] = useState<SceneId>(initialScene);
+  const { remotes, store } = useStore(code);
+  const remotesRef = useRef(new Map<string, RemoteHandle>());
+  const registerRemote = useCallback((id: string, handle: RemoteHandle) => {
+    remotesRef.current.set(id, handle);
+    return () => {
+      if (remotesRef.current.get(id) === handle) remotesRef.current.delete(id);
+    };
+  }, []);
 
   const simRef = useRef<Sim | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -116,6 +150,24 @@ export default function Game({ scene: initialScene, host = false, name = 'YOU', 
     };
   }, [initialScene]);
 
+  // ── Realtime: join the store, route move messages to remote sprites ──
+  const lookKey = lookHash(look);
+  useEffect(() => {
+    const s = (simRef.current ??= createSim(initialScene));
+    const id = userId ?? pageGuestId();
+    s.userId = id;
+    const presenceName = name === 'YOU' ? `GUEST ${id.replace(/[^a-z0-9]/gi, '').slice(-2).toUpperCase()}` : name;
+    store.join({ userId: id, name: presenceName, look, favId: null, scene: s.scene });
+    const offMove = store.onMove((m) => remotesRef.current.get(m.userId)?.push(m));
+    if (process.env.NODE_ENV !== 'production') Object.assign(((window as unknown as { __game?: object }).__game ??= {}), { store, onApp, remotes: remotesRef.current });
+    return () => {
+      offMove();
+      store.leave();
+    };
+    // `look` is covered by lookKey (callers may pass a fresh object every render).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store, userId, name, lookKey, initialScene]);
+
   // ── Per-scene setup + the loop ──
   useEffect(() => {
     const s = (simRef.current ??= createSim(initialScene));
@@ -133,6 +185,17 @@ export default function Game({ scene: initialScene, host = false, name = 'YOU', 
     s.tracker.reset();
     input.tapTarget = null;
     emitApp({ type: 'scene', scene });
+
+    // Tell the store where we are now (presence scene + a stop message at the new spot).
+    s.scene = scene;
+    store.setScene(scene);
+    const sendMove = (moving: boolean, now: number) => {
+      if (!s.userId) return;
+      store.sendMove({ userId: s.userId, x: Math.round(p.x * 10) / 10, dir: p.dir, moving, scene, t: Date.now() });
+      s.lastSend = now;
+      s.sentMoving = moving;
+    };
+    sendMove(false, performance.now());
 
     // Fade back in from the door bloom, if we arrived through one.
     const fade = fadeRef.current;
@@ -253,6 +316,10 @@ export default function Game({ scene: initialScene, host = false, name = 'YOU', 
         zoomEl.style.filter = cam.blur > 0.05 ? `blur(${cam.blur.toFixed(2)}px)` : '';
       }
 
+      // Multiplayer: broadcast movement at 10 Hz while moving, one stop message when we halt
+      if (p.moving ? now - s.lastSend >= MOVE_INTERVAL_MS : s.sentMoving) sendMove(p.moving, now);
+      remotesRef.current.forEach((h) => h.update(now, cam.x, snap));
+
       // Zones
       const { zone, changed } = s.tracker.update(scene, p.x);
       if (changed) onZone(zone);
@@ -290,7 +357,7 @@ export default function Game({ scene: initialScene, host = false, name = 'YOU', 
       dummies.forEach((d) => d.el.remove());
       fpsEl?.remove();
     };
-  }, [scene, initialScene]);
+  }, [scene, initialScene, store]);
 
   // Tap/click-to-walk on the stage.
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
@@ -337,6 +404,9 @@ export default function Game({ scene: initialScene, host = false, name = 'YOU', 
                 {l.id === 'actors' ? (
                   <>
                     {scene === 'interior' && <Rico groundY={world.groundY} handleRef={ricoRef} />}
+                    {remotes.map((r) => (
+                      <RemotePlayer key={r.p.userId} entry={r} scene={scene} groundY={world.groundY} store={store} register={registerRemote} />
+                    ))}
                     <Player name={name} look={look} groundY={world.groundY} rootRef={playerRootRef} bodyRef={playerBodyRef} chipRef={chipRef} />
                   </>
                 ) : scene === 'street' ? (
