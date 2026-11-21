@@ -187,6 +187,11 @@
 
 ## Wave 3
 
+### G5-V: THE VAULT UI integration *(GAME · P0)* ✅ done (agent/vault-ui)
+The teammate's Claude artifact ported to `src/vault/` and wired to real data: catalogue + recs shelves, THE VAULT search, Reko → `/api/rico`, real watch links + `/api/watch`, watchlist → `/api/favourite`, live players over Supabase Realtime (x + y), frosted-glass movie showcase. `/` and `/play` serve it; the classic DOM game is at `/classic`.
+**Still open:** `/join` look + name picker feeding `sv-profile` (U4), host QR "SCAN TO PULL UP" overlay, touch D-pad for phones (tap-to-walk works today), sound toggle in the HUD (M key works).
+
+
 ### G5: Integration: host + phone + full demo path *(GAME · P0 · ~60 min, starts once G1, G3, U1, U2, U3 have merged)*
 **Goal:** the 90-second demo works end to end on the deployed URL.
 **Files:** `src/app/page.tsx`, `src/app/play/page.tsx`, `src/game/Game.tsx`, `src/game/world/*`, `src/components/OverlayRoot.tsx`, `src/components/hud/TouchControls.tsx`, `src/components/hud/QrSign.tsx`, `package.json` (a QR lib such as `qrcode`).

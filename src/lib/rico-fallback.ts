@@ -85,6 +85,7 @@ export function localRicoFallback(
   const bank = [...(mood ? RICO_LINES[mood] : []), ...RICO_LINES.generic];
   const template = bank[Math.floor(Math.random() * bank.length)];
   const line = template
+    .replace(/\{title\}\./g, title.replace(/[.!?]+$/, '') + '.') // "Your Name." + "." → one stop
     .replace(/\{title\}/g, title)
     .replace(/\{year\}/g, String(year))
     .replace(/\{friend\}/g, friend)

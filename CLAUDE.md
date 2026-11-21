@@ -5,6 +5,8 @@
 >
 > KCL Tech first-year hackathon · 4.5 hours · tracks: Retro Remix + Creative Tech · built agentically with **JetBrains Air in IntelliJ IDEA**.
 
+> **Current main experience: THE VAULT UI** (`src/vault/`, routes `/` and `/play`): a teammate's canvas game (intro → vault door → corridor → **top-down store**) wired to real data. See §6.0. The original side-scrolling DOM game (§6.1–6.6) lives on at `/classic`.
+
 **Every agent: read this whole file, then `BACKEND.md` if you touch the backend (and `DATA.md` for anything about titles, search or THE VAULT), then take a task from `TASKS.md`. Ship over perfect.**
 
 > Next.js here is newer than most training data. Check `node_modules/next/dist/docs/` before using a Next API (see the note at the bottom of `AGENTS.md`).
@@ -50,7 +52,7 @@ If a feature doesn't make this better, it waits.
 | Framework | Next.js (App Router) + TypeScript strict |
 | Styling | Tailwind + CSS variables (`src/styles/tokens.css`) |
 | Motion | `motion` (Framer Motion for React) for UI and sequences, CSS keyframes for sprite cycles and ambient loops |
-| Game | **DOM side-scroller**: a world `div` translated by the camera, sprites as `div`s with sprite-sheet backgrounds, and one rAF loop (`src/game/loop.ts`). No canvas engine, so hover and bubbles are native DOM. |
+| Game | **THE VAULT (main):** canvas engine `src/vault/engine.js` (384×216 pixel scenes + glow layers, A* click-to-walk, DOM glass panels) mounted by `VaultGame.tsx` with `adapter.ts` feeding real data. **Classic (`/classic`):** DOM side-scroller: a world `div` translated by the camera, sprites as `div`s with sprite-sheet backgrounds, and one rAF loop (`src/game/loop.ts`). No canvas engine, so hover and bubbles are native DOM. |
 | Sprites | **Procedural pixel art**: ASCII pixel maps in TS, composed and recoloured at runtime onto an offscreen canvas, then turned into sprite-sheet data URLs (`src/game/sprites/`) |
 | Realtime | Supabase Realtime: Presence (who's here plus their look and #1 fav) and Broadcast (movement at 10 Hz, events) |
 | DB | Supabase Postgres (see `BACKEND.md`) |
@@ -106,7 +108,8 @@ strandvault/
 │  │  ├─ join/page.tsx            UI   QR landing → name, look, #1 fav → spawn
 │  │  ├─ play/page.tsx            GAME phone/player view (same game + on-screen controls)
 │  │  └─ api/                     BE   join, favourite, open, watch, recs, rico, store-state, search, title/[appId]
-│  ├─ game/                       GAME
+│  ├─ vault/                      GAME THE VAULT UI: engine.js (ported canvas engine) + engine.d.ts, adapter.ts (real data → engine), VaultGame.tsx (mount, identity, realtime)
+│  ├─ game/                       GAME (classic side-scroller at /classic)
 │  │  ├─ Game.tsx                 mounts scenes, camera, loop, input
 │  │  ├─ loop.ts                  rAF: input → physics → camera → write transforms
 │  │  ├─ camera.ts                follow player, lerp, clamp, push-in/zoom tweens
@@ -141,7 +144,7 @@ strandvault/
 │  │  ├─ server/                  BE   supabase + db (service clients), tmdb, titles, openai (optional), rico-prompt
 │  │  ├─ realtime.ts              GAME useStore(code): presence + broadcast hook
 │  │  └─ events.ts                GAME tiny event bus (game ↔ overlays)
-│  └─ styles/                     UI   tokens.css, globals.css, fx.css
+│  └─ styles/                     UI   tokens.css, globals.css, fx.css, vault.css (artifact CSS scoped to .vault-root)
 ```
 
 ---
@@ -192,6 +195,16 @@ export type Broadcast =
 ---
 
 ## 6. Game spec
+
+### 6.0 THE VAULT UI (main experience)
+- **Flow:** title ("Press ▶ to enter") → art-deco vault door unlocks → short side-scrolling corridor → **top-down store** (click/tap to walk, A* pathfinding; arrows/WASD also walk).
+- **Store:** 4 shelves × 7 titles: *Your Recommendations* (recs engine, refined by `/api/recs`), *Friends' Must-Watches* (friends' faves), *Trending in the Vault*, *Vault Classics*. Plus *Your Watchlist* shelf, the **search computer** (THE VAULT: any movie/show), the **Must-Watches pinboard**, and **Reko** at the counter (mood chips → `/api/rico`).
+- **Open a film:** walk to the case → DVD slides out, opens, disc spins → **frosted-glass showcase** (backdrop behind glass, real poster on case + disc, TMDB rating, real GB providers as "▶ Watch now · Netflix", + Watchlist, friends who love it, cast, TMDB/JustWatch attribution). Films not on a shelf (search, Reko, friends) open straight from the centre.
+- **Multiplayer:** joins `store:{code}` presence; hero position goes out at 10 Hz as `MoveMsg` with `y` + `face` (scene `interior`). Live players are drawn in the store with their look; demo wanderers hide as soon as a real player is in.
+- **Identity:** `localStorage['sv-profile']` (`{ userId, name, look }`, `POST /api/join` on load). `?fresh` joins as a new guest without saving. Watchlist: `localStorage['sv-watchlist']` mirrored to `/api/favourite` + realtime `fav`.
+- **Rules that still apply:** never an error on screen (every call has a fallback), secrets server-only, original art only. The engine keeps its own rAF loop and writes to canvas (React only mounts it), which satisfies rule 7.
+- Dev hook: `window.__SV` (skipTo, openSearch, openReko, remotes, hero).
+
 
 ### 6.1 Stage and scaling
 - Logical stage **640 × 360 px** of pixel art, scaled by the **largest integer** that fits (projector usually ×3) with `image-rendering: pixelated`. Letterbox the remainder with the sunset gradient.

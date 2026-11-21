@@ -20,7 +20,8 @@ export interface Film {
 
 export interface Look { jacket: string; hair: 'flat'|'mullet'|'curls'|'buzz'|'long'; hairColor: string; skin: string; shades: boolean }
 export interface PresenceState { userId: string; name: string; look: Look; favId: number|null; scene: 'street'|'interior'; isDemo?: boolean }
-export interface MoveMsg { userId: string; x: number; dir: 1|-1; moving: boolean; scene: 'street'|'interior'; t: number }
+export interface MoveMsg { userId: string; x: number; dir: 1|-1; moving: boolean; scene: 'street'|'interior'; t: number;
+  y?: number; face?: 0|1|2|3 }   // top-down vault (human-approved, additive): y + facing (0 down, 1 up, 2 left, 3 right)
 
 export type ReasonType = 'crew'|'taste'|'fresh'|'quality'|'mood';
 export interface RecItem { filmId: number; score: number; reason: string; friends: string[]; reasonType?: ReasonType }
