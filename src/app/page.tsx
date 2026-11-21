@@ -3,5 +3,5 @@
 import VaultGame from '@/vault/VaultGame';
 
 export default function Home() {
-  return <VaultGame />;
+  return <VaultGame host />;
 }

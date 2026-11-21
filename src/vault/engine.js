@@ -105,7 +105,7 @@ const SHELVES=[
  {id:'C',name:'Trending in the Vault',sub:'What everyone is watching this week',x:36,y:138,w:140,ids:A.shelves.C.slice(0,7)},
  {id:'D',name:'Vault Classics',sub:'Cult favourites that never leave the vault',x:208,y:138,w:140,ids:A.shelves.D.slice(0,7)}];
 const CONT=A.watchlist().map(id=>({id}));   // "Your Watchlist" shelf (no fake progress)
-const MUST=A.must.slice(0,5);
+const MUST=A.must.slice(0,7);
 const PEOPLE=A.people;
 const DB={
  all:MOVIES,
@@ -251,6 +251,7 @@ AU.startMusic=function(){if(!this.ac||this.playing)return;this.playing=true;this
 AU.sched=function(){const ac=this.ac,spb=60/TRACK.bpm/4;if(this.nt<ac.currentTime-.25)this.nt=ac.currentTime+.05;
   while(this.nt<ac.currentTime+.15){TRACK.play(this,this.si,this.nt,spb);this.nt+=spb;this.si=(this.si+1)%64;}};
 AU.filter=function(f,g,tc){if(!this.ac)return;const t=this.now();this.lp.frequency.cancelScheduledValues(t);this.lp.frequency.setTargetAtTime(f,t,tc||.4);this.mus.gain.setTargetAtTime(g,t,tc||.4);};
+AU.stopMusic=function(){if(!this.ac)return;clearInterval(this.timer);this.playing=false;try{this.mus.gain.setTargetAtTime(0,this.now(),.25);}catch(e){}};
 AU.setMuted=function(m){this.muted=m;if(this.ac)this.master.gain.setTargetAtTime(m?0:.75,this.now(),.05);};
 
 /* =====================================================================
@@ -455,7 +456,7 @@ const slotStand=(s,i)=>({x:s.x+13+i*19,y:s.y+34});
   // pinboard
   rect(g,84,6,68,32,'#5a341c');rect(g,84,6,68,1,'#8a5a30');rect(g,84,37,68,1,'#3a200e');
   dither(g,86,8,64,28,['#9a6634','#a8703e','#b88050'],(x,y)=>hash(x*13.1+y*7.7));
-  MUST.forEach((id,i)=>{const x=90+i*12,y=13+(i%2);rect(g,x+1,y+1,10,14,'rgba(0,0,0,.35)');g.drawImage(mini(id,10,14),x,y);rect(g,x+4,y-1,2,2,'#ff3355');rect(g,x+4,y-1,1,1,'#ffb0c0');});
+  MUST.forEach((id,i)=>{if(!DB.get(id))return;const x=88+i*9,y=13+(i%2);rect(g,x+1,y+1,10,14,'rgba(0,0,0,.35)');g.drawImage(mini(id,10,14),x,y);rect(g,x+4,y-1,2,2,'#ff3355');rect(g,x+4,y-1,1,1,'#ffb0c0');});
   // computer kiosk
   rect(g,160,54,36,2,'rgba(0,0,0,.35)');rect(g,158,34,40,8,'#3a2c66');rect(g,158,34,40,1,'#5a4890');rect(g,158,42,40,12,'#241a48');
   rect(g,162,46,14,1,'#3a2c66');rect(g,180,46,14,1,'#3a2c66');rect(g,168,48,2,1,'#8a7ab0');rect(g,186,48,2,1,'#8a7ab0');
@@ -582,7 +583,7 @@ function go(s){state=s;st=0;const t=AU.now();
   if(s==='zoom')AU.whoosh(t,2.6);
   if(s==='corridor'){Object.assign(hero,{x:-14,alpha:1,anim:0,frame:'w1'});ccam=0;cdoor=0;warmPosters();}
   if(s==='irisOut'){iris.cx=(hero.x+7-ccam)*2;iris.cy=(FLOOR-12)*2;AU.whoosh(t,.7,1800,400,.12);}
-  if(s==='storeIn'){Object.assign(hero,{x:192,y:230,dir:1,path:null,alpha:1,anim:0,f:0});iris.cx=192;iris.cy=205;iris.r=0;AU.filter(6500,.3,.8);buildLabels();setTimeout(()=>$('labels').classList.add('on'),500);}
+  if(s==='storeIn'){Object.assign(hero,{x:192,y:230,dir:1,path:null,alpha:1,anim:0,f:0});iris.cx=192;iris.cy=205;iris.r=0;AU.stopMusic();buildLabels();setTimeout(()=>$('labels').classList.add('on'),500);}
   if(s==='play'){toast('Welcome to <b>THE VAULT</b>');setHint('Click to walk · click shelves, the computer, the board or Reko · hover people');}
   $('press').hidden=s!=='title';}
 function startIntro(){if(state!=='title'||S.titleA<.5)return;AU.init();AU.startMusic();AU.filter(420,.4,.01);AU.blip(660);S.press=true;setTimeout(()=>S.press=false,140);cv.classList.remove('hand');go('fade');}
@@ -701,7 +702,7 @@ function renderSearch(){const q=$('q').value,seq=++sSeq;
     $('sR').innerHTML=list.length?list.map(row).join(''):`<div class="empty">No tape found for that one.<br>Try a title, director, genre or year.</div>`;
     $('sR').querySelectorAll('.row').forEach(b=>{b.onclick=()=>pickSearch(+b.dataset.i);b.onmouseenter=()=>selSearch(+b.dataset.i,false);});};
   const local=DB.search(q);
-  if(!q.trim()){show(local,`${local.length} titles on the shelves · top rated first`);return;}
+  if(!q.trim()){show(local,`${A.vaultLabel||'THE VAULT'} · shelf picks shown first`);return;}
   show(local,local.length?`${local.length} on the shelves · searching the whole vault…`:'Searching the whole vault…');
   clearTimeout(renderSearch.t);renderSearch.t=setTimeout(async()=>{let hits=[];try{hits=await A.search(q);}catch(e){}
     if(seq!==sSeq||DEAD||ui!=='search')return;const seen=new Set(local.map(m=>m.id));
@@ -716,7 +717,7 @@ $('sX').onclick=()=>closeSearch();
 /* ---------- must-watches board ---------- */
 const boardInset=()=>`inset(${BOARD.y/H*100}% ${(W-BOARD.x-BOARD.w)/W*100}% ${(H-BOARD.y-BOARD.h)/H*100}% ${BOARD.x/W*100}% round ${px(2)}px)`;
 function openBoard(){ui='board';hideNpc();AU.blip(620);const B=$('board');
-  $('bS').textContent='Pinned by your friends — out now and coming soon';
+  $('bS').textContent='The big ones this season · out now and coming soon';
   const fr=MUST.map(id=>A.mustWho[id]||'Loved by your crew');
   $('bC').innerHTML=MUST.map((id,i)=>{const m=DB.get(id);if(!m)return'';return`<button class="mw" data-id="${id}"><span class="pin"></span><div class="pf"><img src="${poster(id)}" alt=""><span class="bdg${m.rel?' soon':''}">${m.rel?'Coming '+m.rel:'Out now'}</span></div><h3>${esc(m.t)}</h3><small>${esc(fr[i])}</small></button>`;}).join('');
   B.style.display='block';B.animate([{clipPath:boardInset(),opacity:.5},{clipPath:'inset(0% 0% 0% 0% round 0px)',opacity:1}],{duration:720,easing:'cubic-bezier(.16,1,.3,1)'});AU.whoosh(AU.now(),.6,400,1800,.12);
@@ -742,8 +743,8 @@ async function rkPick(tag){AU.blip(880);$('rkB').innerHTML='';rkType('Let me che
   if(!m){const pool=MOVIES.filter(x=>!x.rel&&(tag==='any'||(x.tags||[]).includes(tag))&&!rkSeen.includes(x.id));m=pool[Math.random()*pool.length|0]||MOVIES[0];}
   rkSeen.push(m.id);
   const txt=(res&&res.line)||`${REASON[tag]} I'd go with “${m.t}” (${m.y}).`;
-  rkType(txt,()=>{$('rkB').innerHTML=`<div class="rk-pick"><img src="${poster(m.id)}" alt=""><div class="chips" style="margin:0"><button class="chip pri" data-a="go">${DB.shelfOf(m.id)?'Show me on the shelf':'Open it'}</button><button class="chip" data-a="again">Another one</button><button class="chip" data-a="vibe">Different vibe</button></div></div>`;
-    $('rkB').querySelector('[data-a=go]').onclick=()=>closeReko(()=>pingAndWalk(m.id));$('rkB').querySelector('[data-a=again]').onclick=()=>rkPick(tag);$('rkB').querySelector('[data-a=vibe]').onclick=rkMoods;});}
+  rkType(txt,()=>{$('rkB').innerHTML=`<div class="rk-pick"><img src="${poster(m.id)}" alt=""><div class="chips" style="margin:0"><button class="chip pri" data-a="go">▶ Open it</button><button class="chip" data-a="again">Another one</button><button class="chip" data-a="vibe">Different vibe</button></div></div>`;
+    $('rkB').querySelector('[data-a=go]').onclick=()=>closeReko(()=>openDirect(m.id));$('rkB').querySelector('[data-a=again]').onclick=()=>rkPick(tag);$('rkB').querySelector('[data-a=vibe]').onclick=rkMoods;});}
 function closeReko(after){clearInterval(rkTimer);const R=$('reko');R.animate([{opacity:1},{opacity:0,transform:`translateY(${px(6)}px)`}],{duration:240}).onfinish=()=>{R.classList.remove('on');ui=null;after&&after();};}
 $('rX').onclick=()=>closeReko();
 
@@ -771,16 +772,27 @@ function openDVD(p){if(ui)return;const m=DB.get(p.id);if(!m)return;ui='dvd';hide
     el.animate([{transform:tB},{transform:'translate(0px,0px) scale(1)'}],{duration:900,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'}).onfinish=()=>setTimeout(()=>{
       AU.open();el.classList.add('open');el.animate([{transform:'translate(0px,0px)'},{transform:`translate(${Ww/2}px,0px)`}],{duration:1000,easing:'cubic-bezier(.65,0,.25,1)',fill:'forwards'});
       setTimeout(()=>showInfo(m,p),1250);},140);};}
+function infoSiblings(p){if(!p||!p.key)return null;if(p.key[0]==='c')return{ids:CONT.map(c=>c.id),key:i=>'c'+i,label:'Your Watchlist'};
+  const s=SHELVES.find(x=>x.id===p.key[0]);return s?{ids:s.ids.slice(),key:i=>s.id+i,label:s.name}:null;}
+let infoCtx=null;
+function infoNav(d){if(ui!=='info'||!infoCtx)return;const sib=infoSiblings(infoCtx.p);if(!sib||sib.ids.length<2)return;
+  const i=(sib.ids.indexOf(infoCtx.m.id)+d+sib.ids.length)%sib.ids.length,id=sib.ids[i],m=DB.get(id);if(!m)return;AU.blip(d>0?880:740);
+  const p={...infoCtx.p,id,key:sib.key(i),label:sib.label};STR.hidden=p.key;const I=$('info'),card=I.querySelector('.card');
+  const swap=()=>{I.innerHTML=infoHTML(m,p);bindInfo(m,p);I.querySelector('.card').animate([{opacity:0,transform:`translateX(${d*px(10)}px)`},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.16,1,.3,1)'});};
+  if(card)card.animate([{opacity:1,transform:'none'},{opacity:0,transform:`translateX(${-d*px(10)}px)`}],{duration:160,easing:'ease-in'}).onfinish=swap;else swap();}
 function showInfo(m,p){ui='info';const I=$('info');I.innerHTML=infoHTML(m,p);I.style.display='block';
   I.animate([{opacity:0,transform:'scale(.94)',filter:'blur(14px)'},{opacity:1,transform:'scale(1)',filter:'blur(0px)'}],{duration:800,easing:'cubic-bezier(.16,1,.3,1)'});
   const L=$('dvdLayer');L.animate([{opacity:1},{opacity:0}],{duration:600,delay:200,fill:'forwards'}).onfinish=()=>{L.style.display='none';L.getAnimations().forEach(a=>a.cancel());L.querySelector('.dim').getAnimations().forEach(a=>a.cancel());L.querySelectorAll('.dvd').forEach(e=>e.remove());};
+  bindInfo(m,p);}
+function bindInfo(m,p){const I=$('info');infoCtx={m,p};const sib=infoSiblings(p);
+  I.querySelectorAll('.nav').forEach(b=>{if(!sib||sib.ids.length<2)b.remove();else b.onclick=()=>infoNav(+b.dataset.d);});
   I.querySelector('.card>.x').onclick=closeInfo;I.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{const a=b.dataset.act;AU.blip(990);
     if(a==='watch'){const pv=A.providers(m)[+b.dataset.i];A.watch(m,pv);toast(`▶ Opening <b>${esc(m.t)}</b> on ${esc(pv.name)}`,2800);}
     else if(a==='find'){A.watch(m,null);toast(`Finding where to watch <b>${esc(m.t)}</b>`,2800);}
     else if(a==='list'){const saved=A.toggleSaved(m);b.textContent=saved?'✓ On your watchlist':'+ Watchlist';syncCont();toast(saved?`Added <b>${esc(m.t)}</b> to your watchlist`:`Removed <b>${esc(m.t)}</b> from your watchlist`,2400);}
     else if(a==='back')closeInfo();});}
 function closeInfo(){const I=$('info');if(!I)return;AU.blip(520);I.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(.97)'}],{duration:320,easing:'ease-in'}).onfinish=()=>{I.style.display='none';I.innerHTML='';};
-  ui=null;STR.hidden=null;STR.ping=null;}
+  ui=null;infoCtx=null;STR.hidden=null;STR.ping=null;}
 function infoHTML(m,p){const pst=poster(m.id),bg=m.bd||pst,f=m.film||{},provs=A.providers(m),lovers=A.lovers(m.id);
   const rate=m.sc?`<div class="rate"><span class="stars" style="--v:${m.sc/5*100}%">★★★★★</span><b>${(m.sc*2).toFixed(1)}</b><small>TMDB · ${(f.votes||0).toLocaleString('en-GB')} ratings${f.certification?' · Rated '+esc(f.certification):''}</small></div>`:'';
   const watch=provs.length?provs.slice(0,3).map((pv,i)=>`<button class="btn${i===0?' pri':''}" data-act="watch" data-i="${i}">▶ ${i===0?'Watch now · ':''}${esc(pv.name)}</button>`).join(''):`<button class="btn pri" data-act="find">▶ Find where to watch</button>`;
@@ -788,7 +800,7 @@ function infoHTML(m,p){const pst=poster(m.id),bg=m.bd||pst,f=m.film||{},provs=A.
   const crew=lovers.length?`<h4>Friends who love this</h4><div class="revs">${lovers.map(n=>`<div class="rv"><div class="h"><span class="av" style="background:${AVC[n]||'#7a2fb0'}">${esc(n[0]||'?')}</span>${esc(n)}<em>♥</em></div></div>`).join('')}</div>`:'';
   const cast=f.cast&&f.cast.length?`<h4>Starring</h4><p class="desc">${esc(f.cast.slice(0,5).join(' · '))}</p>`:'';
   const kind=f.mediaType==='tv'?`TV · ${f.seasons||'?'} season${f.seasons===1?'':'s'}`:m.g[0]||'Film';
-  return`<div class="bg" style="background-image:url(${bg})"></div><div class="shade"></div><div class="card"><button class="x" aria-label="Close">×</button>
+  return`<div class="bg" style="background-image:url(${bg})"></div><div class="shade"></div><button class="nav prev" data-d="-1" aria-label="Previous film">‹</button><button class="nav next" data-d="1" aria-label="Next film">›</button><div class="card"><button class="x" aria-label="Close">×</button>
    <div class="lcol"><div class="io"><div class="pl"><img src="${pst}" alt=""></div><div class="pr"><div class="disc"><div class="lab" style="background-image:url(${pst})"></div><div class="shine"></div><div class="hub"></div></div></div></div><div class="cap">${p.key===null?'Pulled from the vault':'From the shelf · '+esc(p.label)}</div></div>
    <div class="rcol reveal"><div class="kick">The Vault · ${esc(kind)}</div><h1>${esc(m.t)}</h1>
     <div class="meta"><span>${m.y||''}</span>${m.rt?`<span>${fmtRT(m)}</span>`:''}${m.g.map(g=>`<span>${esc(g)}</span>`).join('')}${m.d?`<span>Dir. ${esc(m.d)}</span>`:''}</div>
@@ -809,6 +821,7 @@ cv.addEventListener('pointerdown',e=>{const[x,y]=toNative(e);if(state==='title')
 const KM={ArrowLeft:'l',a:'l',A:'l',ArrowRight:'r',d:'r',D:'r',ArrowUp:'u',w:'u',W:'u',ArrowDown:'d',s:'d',S:'d'};
 on(window,'keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;const k=e.key;
   if(state==='title'&&(k==='Enter'||k===' ')){e.preventDefault();startIntro();return;}
+  if(ui==='info'&&(k==='ArrowLeft'||k==='ArrowRight')){e.preventDefault();infoNav(k==='ArrowLeft'?-1:1);return;}
   if(k==='Escape'){({list:closeList,search:()=>closeSearch(),board:()=>closeBoard(),reko:()=>closeReko(),info:closeInfo})[ui]?.();return;}
   if(k==='m'||k==='M'){AU.setMuted(!AU.muted);return;}
   if(KM[k]){e.preventDefault();keys[KM[k]]=true;}});
@@ -818,15 +831,16 @@ on(window,'blur',()=>{for(const k in keys)keys[k]=false;});
 /* =====================================================================
    BOOT
    ===================================================================== */
-function fit(){const s=Math.min(innerWidth/W,innerHeight/H);SC=s;stage.style.width=W*s+'px';stage.style.height=H*s+'px';stage.style.setProperty('--s',s);}
+function fit(){const cw=root.clientWidth||innerWidth,ch=root.clientHeight||innerHeight,s=Math.min(cw/W,ch/H);SC=s;stage.style.width=W*s+'px';stage.style.height=H*s+'px';stage.style.setProperty('--s',s);}
 on(window,'resize',fit);fit();
+const RO=typeof ResizeObserver!=='undefined'?new ResizeObserver(()=>fit()):null;RO&&RO.observe(root);
 let warmed=false;function warmPosters(){if(warmed)return;warmed=true;const ids=MOVIES.map(m=>m.id);let i=0;const step=()=>{if(i>=ids.length)return;poster(ids[i++]);setTimeout(step,30);};
   (document.fonts&&document.fonts.ready?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve()).then(step);}
 let last=performance.now();
 function frame(now){if(DEAD)return;const dt=Math.min(.05,(now-last)/1000);last=now;update(dt);render();requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
 const api={
-  destroy(){DEAD=true;for(const[t,e,f,o]of LISTENERS)t.removeEventListener(e,f,o);try{AU.ac&&AU.ac.close();}catch(e){}},
+  destroy(){DEAD=true;RO&&RO.disconnect();for(const[t,e,f,o]of LISTENERS)t.removeEventListener(e,f,o);try{AU.ac&&AU.ac.close();}catch(e){}},
   /** Live players (realtime). Each: {id,name,x,y,dir,moving,P,fav,recent}. */
   setRemotes(list){const seen=new Set();for(const r of list){seen.add(r.id);let a=remotes.get(r.id);
       if(!a){a={...r,tx:r.x,ty:r.y,anim:0,f:0,path:null};remotes.set(r.id,a);}
@@ -836,6 +850,7 @@ const api={
   setShelf(id,ids){const s=SHELVES.find(x=>x.id===id);if(s&&ids&&ids.length)s.ids=ids.filter(i=>DB.get(i)).slice(0,7);},
   addMovies(list){list.forEach(m=>DB.add(m));},
   syncWatchlist:syncCont,
+  toast(html,ms){if(!DEAD)toast(html,ms);},
   get state(){return state},get ui(){return ui},
   get remotes(){return [...remotes.values()].map(r=>({id:r.id,name:r.name,x:Math.round(r.x),y:Math.round(r.y)}))},get hero(){return {x:Math.round(hero.x),y:Math.round(hero.y)}},
   skipTo(){Object.assign(S,{titleA:0,wheel:Math.PI*3,bolt:1,open:1,k:7,ks:1,L:1,wipe:1});AU.init();go('storeIn');},

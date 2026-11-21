@@ -3,13 +3,16 @@
 'use client';
 
 import '@/styles/vault.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { loadCatalogue } from '@/lib/catalogue';
-import { mockFriends, mockLook, mockStaffPicks } from '@/lib/mocks';
+import { onApp } from '@/lib/events';
+import { mockLook, mockStaffPicks } from '@/lib/mocks';
 import { DEFAULT_STORE_CODE, getStore } from '@/lib/realtime';
 import type { Look, MoveMsg, StoreStateRes } from '@/lib/types';
-import { buildAdapter, paletteFor } from './adapter';
+import { buildAdapter, DEMO_FRIENDS, paletteFor } from './adapter';
+import HostOverlay, { PANEL_W } from './HostOverlay';
+import { profileKey } from './profile';
 import { mountVault, type VaultApi, type VaultRemote } from './engine';
 
 // Static markup from the artifact. The engine finds these by id inside the root.
@@ -44,16 +47,17 @@ const MARKUP = `
 
 const MOVE_MS = 100; // 10 Hz while moving
 
+let PROFILE_KEY = 'sv-profile';
 function readProfile(): { name?: string; look?: Look; userId?: string } {
   try {
-    return JSON.parse(localStorage.getItem('sv-profile') ?? '{}') ?? {};
+    return JSON.parse(localStorage.getItem(PROFILE_KEY) ?? '{}') ?? {};
   } catch {
     return {};
   }
 }
 function saveUserId(userId: string) {
   try {
-    localStorage.setItem('sv-profile', JSON.stringify({ ...readProfile(), userId }));
+    localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...readProfile(), userId }));
   } catch {
     /* private mode */
   }
@@ -61,8 +65,18 @@ function saveUserId(userId: string) {
 const withTimeout = <T,>(p: Promise<T>, ms: number, fallback: T) =>
   Promise.race([p, new Promise<T>((r) => setTimeout(() => r(fallback), ms))]);
 
-export default function VaultGame({ code = DEFAULT_STORE_CODE }: { code?: string }) {
+export default function VaultGame({ code = DEFAULT_STORE_CODE, host = false }: { code?: string; host?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [uiBusy, setUiBusy] = useState(false); // a vault panel (shelf, film, search, board, Reko) is open
+  const engineRef = useRef<VaultApi | null>(null);
+
+  // Host only: tuck the QR card away while a panel is open so it never covers content.
+  useEffect(() => {
+    if (!host) return;
+    const id = window.setInterval(() => setUiBusy(!!engineRef.current?.ui), 400);
+    return () => window.clearInterval(id);
+  }, [host]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -75,19 +89,21 @@ export default function VaultGame({ code = DEFAULT_STORE_CODE }: { code?: string
 
     void (async () => {
       // ?fresh → join as a brand-new guest without touching the saved identity (shared devices, tests)
-      const fresh = new URLSearchParams(window.location.search).has('fresh');
+      const qs = new URLSearchParams(window.location.search);
+      const fresh = qs.has('fresh');
+      PROFILE_KEY = profileKey(qs.get('as'));
       const profile = fresh ? {} : readProfile();
       const look = profile.look ?? mockLook;
       const [catalogue, state, joined] = await Promise.all([
         loadCatalogue(),
-        withTimeout<StoreStateRes>(api.storeState(code), 2500, { friends: mockFriends, staffPicks: mockStaffPicks }),
+        withTimeout<StoreStateRes>(api.storeState(code), 2500, { friends: DEMO_FRIENDS, staffPicks: mockStaffPicks }),
         withTimeout(api.join({ name: profile.name ?? 'GUEST', look, favId: null, code, userId: profile.userId }), 2500, null),
       ]);
       if (cancelled) return;
       const userId = joined?.userId ?? profile.userId ?? `guest-${Math.random().toString(36).slice(2, 10)}`;
       if (!fresh) saveUserId(userId);
       const myName = joined?.presence.name ?? (profile.name || `GUEST ${userId.slice(-2).toUpperCase()}`);
-      const friends = state.friends.length ? state.friends : mockFriends;
+      const friends = state.friends.length ? state.friends : DEMO_FRIENDS;
 
       // Realtime: presence + live faves
       store.join({ userId, name: myName, look, favId: null, scene: 'interior' });
@@ -122,6 +138,11 @@ export default function VaultGame({ code = DEFAULT_STORE_CODE }: { code?: string
       };
 
       engine = mountVault(root, adapter);
+      engineRef.current = engine;
+
+      // Realtime toasts ("JATHU just pulled up", "VINU is watching …") → the vault's own toast
+      const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c);
+      offs.push(onApp('toast', (e) => engine?.toast(esc(e.text).replace(/^(\S+)/, '<b>$1</b>'), 3200)));
 
       // Live players → engine (positions from move messages; looks/faves from presence)
       const moves = new Map<string, MoveMsg>();
@@ -157,10 +178,16 @@ export default function VaultGame({ code = DEFAULT_STORE_CODE }: { code?: string
       cancelled = true;
       offs.forEach((off) => off());
       engine?.destroy();
+      engineRef.current = null;
       store.leave();
       root.innerHTML = '';
     };
   }, [code]);
 
-  return <div ref={rootRef} className="vault-root" />;
+  return (
+    <>
+      <div ref={rootRef} className="vault-root" style={host && panelOpen ? { right: PANEL_W } : undefined} />
+      {host && <HostOverlay open={panelOpen} onToggle={setPanelOpen} code={code} hideQr={uiBusy} />}
+    </>
+  );
 }

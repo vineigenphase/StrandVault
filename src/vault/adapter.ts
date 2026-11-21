@@ -9,6 +9,16 @@ import type { Aisle, Film, Friend, Look, Mood, Provider } from '@/lib/types';
 import { getTitle, searchVault, type VaultHit } from '@/lib/vault';
 import { shade } from '@/game/sprites/pixel';
 import type { PersonPalette, RekoVibe, VaultAdapter, VaultMovie, VaultPerson } from './engine';
+import { mockFriends } from '@/lib/mocks';
+import { mustWatches } from './mustWatch';
+
+/** The three demo regulars who wander the store until real people join. */
+export const DEMO_FRIENDS: Friend[] = (['JATHU', 'VINU', 'AKIRA'] as const).map((name, i) => ({
+  ...mockFriends[i % mockFriends.length],
+  userId: `demo-${name.toLowerCase()}`,
+  name,
+  isDemo: true,
+}));
 
 // ── Film → artifact movie ─────────────────────────────────────────────────────────────
 
@@ -160,17 +170,14 @@ export function buildAdapter(input: AdapterInput): VaultAdapter {
     if (shelf.length < 7) shelf.push(...take(catalogue.films.map((f) => f.id), 7 - shelf.length));
   }
 
-  // Must-watches board: friends' most-loved
-  const nameOf = new Map(others.map((f) => [f.userId, pretty(f.name)]));
-  const must = picks.slice(0, 5).map((p) => String(p.filmId));
-  const mustWho: Record<string, string> = {};
-  for (const p of picks.slice(0, 5)) {
-    const names = p.userIds.map((u) => nameOf.get(u) ?? 'A friend');
-    mustWho[String(p.filmId)] = names.length > 2 ? `${names[0]}, ${names[1]} & ${names.length - 2} more love it` : `${names.join(' & ')} love${names.length === 1 ? 's' : ''} it`;
-  }
+  // Must-watches board: the big 2026 releases with UK dates (src/vault/mustWatch.ts)
+  const pins = mustWatches();
+  for (const m of pins.movies) if (!movies.some((x) => x.id === m.id)) movies.push(m);
+  const must = pins.movies.map((m) => m.id);
+  const mustWho = pins.who;
 
   // Demo wanderers (hidden as soon as real players are in the store)
-  const people: VaultPerson[] = others.slice(0, 3).map((f, i) => ({
+  const people: VaultPerson[] = DEMO_FRIENDS.map((f, i) => ({
     id: `demo-${f.userId}`,
     name: pretty(f.name),
     fav: f.favId !== null ? String(f.favId) : undefined,
@@ -190,6 +197,7 @@ export function buildAdapter(input: AdapterInput): VaultAdapter {
     people,
     heroPalette: input.myLook ? paletteFor(input.myLook) : undefined,
     fonts: input.fonts,
+    vaultLabel: '5,000 films · 2,000 shows in THE VAULT',
     dev: process.env.NODE_ENV !== 'production',
 
     watchlist: readWatchlist,

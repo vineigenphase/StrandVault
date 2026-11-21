@@ -47,6 +47,8 @@ export interface VaultAdapter {
   people: VaultPerson[];
   heroPalette?: PersonPalette;
   fonts: { display: string; body: string };
+  /** Shown in the search terminal when the query is empty, e.g. "5,000 films · 2,000 shows". */
+  vaultLabel?: string;
   dev?: boolean;
   watchlist(): string[];
   isSaved(id: string): boolean;
@@ -68,6 +70,7 @@ export interface VaultApi {
   setShelf(id: 'A' | 'B' | 'C' | 'D', ids: string[]): void;
   addMovies(list: VaultMovie[]): void;
   syncWatchlist(): void;
+  toast(html: string, ms?: number): void;
   readonly state: string;
   readonly ui: string | null;
   readonly remotes: { id: string; name: string; x: number; y: number }[];

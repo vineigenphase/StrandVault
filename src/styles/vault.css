@@ -192,3 +192,8 @@
 .vault-root .rv p{margin-top:calc(var(--u)*2);font-size:max(11px,calc(var(--u)*3.3));line-height:1.55;color:rgba(255,255,255,.8)}
 .vault-root .fine{margin-top:calc(var(--u)*5);font-size:max(9px,calc(var(--u)*2.6));color:rgba(255,255,255,.4)}
 .vault-root .reveal>*{opacity:0;transform:translateY(calc(var(--u)*3));animation:vault-rowin .6s cubic-bezier(.2,.9,.3,1) forwards}
+/* ‹ › flip through the shelf on the movie page */
+.vault-root #info .nav{position:absolute;top:50%;z-index:3;width:max(44px,calc(var(--u)*13));height:max(44px,calc(var(--u)*13));margin-top:calc(max(44px,calc(var(--u)*13))/-2);border-radius:50%;border:1px solid rgba(255,255,255,.22);background:rgba(22,14,48,.55);-webkit-backdrop-filter:blur(calc(var(--u)*6));backdrop-filter:blur(calc(var(--u)*6));color:#fff;font:600 max(22px,calc(var(--u)*8))/1 var(--ff-body),sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
+.vault-root #info .nav:hover{background:rgba(255,63,164,.45);transform:scale(1.08)}
+.vault-root #info .nav.prev{left:max(4px,calc(var(--u)*2))}
+.vault-root #info .nav.next{right:max(4px,calc(var(--u)*2))}
