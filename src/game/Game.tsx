@@ -12,6 +12,7 @@ import { mockLook } from '@/lib/mocks';
 import type { Look } from '@/lib/types';
 import { createCamera, VIEW_H, VIEW_W, type Camera } from './camera';
 import Player, { ACCEL, createPlayerState, PLAYER_H, PLAYER_W, WALK_SPEED, type PlayerState } from './entities/Player';
+import Rico, { type RicoHandle } from './entities/Rico';
 import { input } from './input';
 import { createLoop } from './loop';
 import { INTERIOR, SECTIONS, sectionById } from './world/interior';
@@ -73,6 +74,7 @@ export default function Game({ scene: initialScene, host = false, name = 'YOU', 
   const playerRootRef = useRef<HTMLDivElement>(null);
   const playerBodyRef = useRef<HTMLDivElement>(null);
   const chipRef = useRef<HTMLDivElement>(null);
+  const ricoRef = useRef<RicoHandle | null>(null); // G4
   const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // ── Stage scaling: largest integer that fits; fractional below ×1 (phones) ──
@@ -254,6 +256,7 @@ export default function Game({ scene: initialScene, host = false, name = 'YOU', 
       // Zones
       const { zone, changed } = s.tracker.update(scene, p.x);
       if (changed) onZone(zone);
+      if (scene === 'interior') ricoRef.current?.update(p.x); // G4: RICO waves when you get close
 
       // Pulses (always consumed so nothing queues up while busy)
       const wantInteract = input.consume('interact');
@@ -327,11 +330,15 @@ export default function Game({ scene: initialScene, host = false, name = 'YOU', 
                 style={{
                   width: layerWidth(world.width, l.factor),
                   willChange: 'transform',
+                  pointerEvents: 'none', // clicks fall through to the stage (tap-to-walk); interactive bits opt back in with 'auto'
                   filter: scene === 'interior' && l.id === 'foreground' ? 'blur(1.5px)' : undefined,
                 }}
               >
                 {l.id === 'actors' ? (
-                  <Player name={name} look={look} groundY={world.groundY} rootRef={playerRootRef} bodyRef={playerBodyRef} chipRef={chipRef} />
+                  <>
+                    {scene === 'interior' && <Rico groundY={world.groundY} handleRef={ricoRef} />}
+                    <Player name={name} look={look} groundY={world.groundY} rootRef={playerRootRef} bodyRef={playerBodyRef} chipRef={chipRef} />
+                  </>
                 ) : scene === 'street' ? (
                   <StreetLayer id={l.id} doorRef={doorRef} />
                 ) : (
@@ -462,9 +469,7 @@ function InteriorLayer({ id }: { id: string }) {
                 <p className="absolute inset-x-0 text-center font-hud" style={{ top: 92, fontSize: 9, color: s.color, textShadow: glow }}>
                   {s.label}
                 </p>
-                {s.id === 'counter' ? (
-                  <div className="absolute" style={{ left: 90, right: 90, bottom: 0, height: 70, background: 'var(--dusk)', border: `2px solid ${s.color}` }} />
-                ) : (
+                {s.id === 'counter' ? null /* G4: the counter is drawn by entities/Rico.tsx */ : (
                   <div className="absolute inset-x-0" style={{ top: 112, bottom: 26, border: `1px solid ${s.color}`, boxShadow: glow }}>
                     {[0.33, 0.66].map((t) => (
                       <div key={t} className="absolute inset-x-0" style={{ top: `${t * 100}%`, height: 1, background: s.color }} />

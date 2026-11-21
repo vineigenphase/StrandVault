@@ -25,6 +25,20 @@ export const SECTIONS: SectionDef[] = [
 
 export const sectionById = (id: Section) => SECTIONS.find((s) => s.id === id);
 
+/**
+ * The counter inside the 'counter' section (2520–3000). RICO stands behind it; the physical
+ * IDK arcade button sits on top. Standing anywhere in the section + interact also calls RICO.
+ */
+export const COUNTER = {
+  x0: 2640,
+  x1: 2900,
+  height: 22,          // waist height for 24px people
+  ricoX: 2790,         // RICO's centre
+  ricoDepth: 6,        // RICO's feet sit this far above the floor line (behind the counter)
+  waveRange: 120,      // RICO waves when the player gets this close
+  idkX: 2690,          // centre of the IDK hotspot on the counter top
+} as const;
+
 export const INTERIOR = {
   width: 3000,
   groundY: 318,
