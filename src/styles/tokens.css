@@ -1,0 +1,9 @@
+:root{
+  --night:#0B0620; --dusk:#2A0B45;
+  --neon-pink:#FF2E88; --neon-cyan:#00E5FF; --sunset:#FF8A3D; --palm:#1DE9B6; --hazard:#FFD300; --vhs-cream:#F4E8C1;
+  --aisle-action:#FF8A3D; --aisle-comedy:#FFD300; --aisle-horror:#FF3B3B; --aisle-scifi:#00E5FF;
+  --aisle-drama:#B388FF; --aisle-romance:#FF2E88; --aisle-animated:#1DE9B6; --aisle-cult:#C6FF00;
+  --sunset-grad:linear-gradient(180deg,#FF8A3D 0%,#FF2E88 35%,#7B2CBF 65%,#0B0620 100%);
+  --font-neon:'Monoton'; --font-script:'Yellowtail'; --font-banner:'Bungee';
+  --font-hud:'Press Start 2P'; --font-term:'VT323'; --font-body:'Inter';
+}
