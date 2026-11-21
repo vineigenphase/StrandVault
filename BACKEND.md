@@ -27,6 +27,8 @@
 | `NEXT_PUBLIC_STORE_CODE` | browser + server | default store channel, default `KCL` | no |
 | `NEXT_PUBLIC_SITE_URL` | browser | QR code target (`{url}/join?code=KCL`) on the host screen | yes (QR) |
 | `SUPABASE_SERVICE_ROLE_KEY` | **server only** | API routes, `seed-personas.ts` | yes (profiles, faves) |
+| `OPENAI_API_KEY` | **server only** | optional: `/api/rico` lines from OpenAI. **Leave empty for £0** (scripted line bank) | no |
+| `OPENAI_MODEL` | **server only** | optional, only with the key above | no |
 | `DEMO_OFFLINE` | **server only** | set to `1` to make `/api/search` + `/api/title` skip DB/TMDB (client uses `/vault-index.json`) | no |
 | `TMDB_TOKEN` | **server + scripts** | `scripts/build-db.ts`, and live search in `/api/search` + `/api/title` (v4 read token or v3 key) | no (catalogue is committed; search falls back to the vault/index) |
 | `WATCHMODE_KEY` | **build script only** | `build-db --watchmode` for deep watch links | no |
@@ -112,7 +114,7 @@ The catalogue is built by **`npm run db:build`** (`scripts/build-db.ts`), which 
 
 ### 4.1 Loaders
 - `src/lib/catalogue.ts` (client): `loadCatalogue()` fetches `/catalogue.json` once and falls back to `mocks.ts`. Index: `byId`, `byAisle`, `trending`, `search()`.
-- `src/lib/server/catalogue.ts` (routes): `serverCatalogue()` reads `public/catalogue.json` once per instance, falls back to mocks.
+- Server routes: `catalogueServer()` (same file) reads the committed `public/catalogue.json` at build, falls back to mocks.
 - `src/lib/vault.ts` (client): `searchVault(q)` (API, then offline index) and `getTitle(id, byId)` (shelf first, then `/api/title`). **Every "open film" entry point uses `getTitle`**, so search results and friends' faves that aren't on a shelf still open.
 
 ### 4.2 `src/lib/links.ts`: `watchUrl(film, provider)`
@@ -213,30 +215,26 @@ trendingFallback(catalogue, k) · staffPicks(friends, catalogue) · signalsFrom(
 4. **Re-rank:** MMR (lambda 0.72) for diversity, a per-aisle cap (ceil(k/4)), and every 6th slot an **exploration** pick from outside the user's usual aisles. Opened twice but never faved gets a small fatigue penalty.
 5. **Explain:** `reasonType` (`crew` · `taste` · `fresh` · `quality` · `mood`) plus a reason: `MAYA'S #1 PICK` · `MAYA + 2 OTHERS LOVE THIS` · `BECAUSE YOU LOVED INCEPTION` · `FANS OF ALIEN LOVE THIS` · `TRENDING THIS WEEK` · `CRITICS' CHOICE` · `OUTSIDE YOUR USUAL · CRITICS LOVE IT`. Strong social proof (a friend's #1 or 2+ friends) always leads.
 
-**Fallbacks:** no data → `trendingFallback()` with `fallback:true`; Supabase down → the same. `api.recs()` already runs the engine client-side over the loaded catalogue + demo friends, so YOUR SHELF is personalised even with no backend. **BE3 now only needs the route** (`/api/recs` builds `Signals` from the DB and calls `recommend()`).
+**Fallbacks:** no data → `trendingFallback()` with `fallback:true`; Supabase down → the same. `/api/recs` and `/api/rico` (BE2–BE4, merged) call `scoreRecs()` / `padWithTrending()`, compatibility adapters at the bottom of `recs.ts` that run this engine. Offline, `api.recs(userId, code, myFavs, myTop)` runs the same engine locally.
 
 ---
 
-## 7. RICO (`POST /api/rico`): £0, no LLM, no API key
+## 7. RICO (`POST /api/rico`): £0 by default ✅ built
 
-RICO **feels** like AI but is our recommendation engine plus a hand-written line bank (a decision from THE VAULT kit). No credits, no keys, no latency, nothing that can fail on stage.
+RICO **feels** like AI but by default it's the recommendation engine plus a scripted line bank: no credits, no keys, nothing that can fail on stage. If `OPENAI_API_KEY` is set, the route asks OpenAI for the line (structured output, 5s timeout) and still falls back to the line bank on any problem. **For the demo, leave the key empty.**
 
-Files: `src/app/api/rico/route.ts`, `src/lib/rico-lines.ts` (isomorphic line bank + `localRicoPick()`, so the client can run the same logic offline).
+Files (merged from BE): `src/app/api/rico/route.ts`, `src/lib/rico-fallback.ts` (isomorphic line bank + `localRicoFallback()`, also used client-side by `api.rico()`), `src/lib/server/openai.ts`, `src/lib/server/rico-prompt.ts`.
 
 **Flow**
-1. Candidates: `recommend()` for the user, top 40, with the mood filter (`laugh` → comedy/animated, `scare` → horror, `date` → romance/comedy/drama, `mind` → scifi/cult/drama rated 7.2+), minus `exclude` (films already tossed this session).
-2. Pick: weighted random from the **top 5** (weights 5,4,3,2,1), so re-rolls differ but stay good.
-3. Line: a random template from the pick's `reasonType` bucket (`crew` · `taste` · `fresh` · `quality` · `mood`), slots `{title}` `{year}` `{friend}` `{friends}` `{aisle}` `{name}`. Skip `crew` templates if no friend loves it. Under 22 words each (it's typed out). At least 4 per bucket.
-4. Log `events(kind='rico', film_id, meta:{ mood })` without awaiting. Return `{ filmId, line, reason, backups: [two other top-5 ids], fallback: false }`.
-5. 0 favourites and no crew data → trending + the `fresh` bucket. **Always 200, always under 50ms.**
-
-Example lines: *"{friend} won't shut up about {title}. Tonight you find out why, amigo."* · *"You liked the last one? {title}. Same energy, better jacket."* · *"Everybody's renting {title} this week. Don't be the last guy."*
+1. Candidates: `scoreRecs()` (the engine, §6) with the mood filter, minus `exclude` (films already tossed this session). Empty → `trendingFallback()`.
+2. Pick + line: line bank by default (OpenAI only if configured), validated so the pick is always one of the candidates.
+3. Always 200; the client wrapper applies `localRicoFallback()` if the route is unreachable or slower than 6s.
 
 ---
 
 ## 8. Security checklist
 
-- [ ] `grep -r "SERVICE_ROLE\|TMDB_TOKEN\|WATCHMODE_KEY" src/` only matches files under `src/lib/server/` and `src/app/api/`.
+- [ ] `grep -r "SERVICE_ROLE\|OPENAI_API_KEY\|TMDB_TOKEN\|WATCHMODE_KEY" src/` only matches files under `src/lib/server/` and `src/app/api/`.
 - [ ] Every file in `src/lib/server/` starts with `import 'server-only'`.
 - [ ] RLS is enabled on all three tables, with no anon policies.
 - [ ] Route inputs are length-capped (name 12, exclude ≤ 50 ids) and numeric ids are checked with `Number.isInteger`.

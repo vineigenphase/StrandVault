@@ -66,7 +66,7 @@
 - `/api/title/-1399` returns Game of Thrones (TV app ids are negative).
 - The store renders the real catalogue (no mock titles) and falls back to mocks if the file is removed.
 
-### BE2: Supabase schema, clients, core routes, personas *(BE · P0 · ~50 min)*
+### BE2: Supabase schema, clients, core routes, personas *(BE · P0 · ~50 min)* ✅ merged (PR #1)
 **Goal:** persistence for profiles, favourites and events, plus the store-state route.
 **Files:** `supabase/schema.sql`, `.env.example`, `src/lib/supabase.ts`, `src/lib/server/supabase.ts`, `src/app/api/join/route.ts`, `src/app/api/favourite/route.ts`, `src/app/api/open/route.ts`, `src/app/api/watch/route.ts`, `src/app/api/store-state/route.ts`, `src/lib/api.ts` (swap mocks for real fetches for these five), `scripts/seed-personas.ts`.
 **Depends on:** T0. Uses catalogue IDs from `mocks.ts` until BE1 merges, then re-points the persona favourites at real IDs.
@@ -140,13 +140,13 @@
 
 ## Wave 2 (parallel; start each as soon as its deps merge)
 
-### BE3: `/api/recs` route *(BE · P1 · ~20 min)*
+### BE3: `/api/recs` route *(BE · P1 · ~20 min)* ✅ merged (PR #1, runs the engine via scoreRecs)
 **The engine is built** (`src/lib/recs.ts`, BACKEND.md §6, verified). This task is only the route.
 **Files:** `src/app/api/recs/route.ts`, `src/lib/api.ts` (the `recs` wrapper only: fetch the route first, keep the local engine as fallback).
 **Depends on:** BE2 (DB helpers). Uses `serverCatalogue()` from `lib/server/catalogue.ts`.
 **Acceptance:** builds `Signals` from `favourites` + `events` (watch/open, with `created_at` as `at`) + store friends' names, calls `recommend(films, signals, { k: 18 })`, returns `RecsRes`. A user with 0 faves gets `trendingFallback()` with `fallback:true`. DB down → same fallback, never a 500. Also expose `GET /api/recs?userId=&rows=1` → `personalRows()` for YOUR SHELF rows.
 
-### BE4: RICO route, £0 *(BE · P1 · ~30 min)*
+### BE4: RICO route, £0 *(BE · P1 · ~30 min)* ✅ merged (PR #1, £0 unless OPENAI_API_KEY is set)
 **Files:** `src/app/api/rico/route.ts`, `src/lib/rico-lines.ts` (isomorphic line bank + `localRicoPick()`), `src/lib/api.ts` (the `rico` wrapper only).
 **Depends on:** BE3 (or call `recommend()` directly; it's merged).
 **Acceptance:** exactly BACKEND.md §7: no LLM, no key. Mood re-rolls stay within their mood; 5 re-rolls give ≥ 3 distinct films (weighted top-5 + `exclude`); ≥ 4 lines per reason bucket; always 200 in under 50ms; the client wrapper runs `localRicoPick()` if the route is unreachable.

@@ -1,8 +1,9 @@
 // Catalogue loader + index (BACKEND.md §4.3). Lane BE.
-// Client: fetches /catalogue.json once (written by `npm run db:build`, DATA.md), falls back to mocks.ts
-// if it's missing or broken so nothing ever renders blank. Server routes use lib/server/catalogue.ts.
+// Browser fetches /catalogue.json once; server reads the committed file at build.
+// Both fall back to mocks.ts so the demo never renders blank.
 import type { Aisle, Film } from './types';
 import { mockFilms } from './mocks';
+import committedCatalogue from '../../public/catalogue.json';
 
 export interface Catalogue {
   films: Film[];
@@ -33,26 +34,33 @@ export function buildCatalogue(films: Film[]): Catalogue {
   };
 }
 
+const committed = (committedCatalogue as { films?: unknown }).films;
+const committedFilms: Film[] = Array.isArray(committed) && committed.length
+  ? committed as Film[]
+  : mockFilms;
+
 let cached: Catalogue | null = null;
 let pending: Promise<Catalogue> | null = null;
 
-/** Resolves once, memoised. Real catalogue when available, mocks otherwise. */
+/** Client + server: resolves once, memoised (BACKEND.md §4.3). */
 export function loadCatalogue(): Promise<Catalogue> {
   if (cached) return Promise.resolve(cached);
-  pending ??= fetchFilms().then((films) => (cached = buildCatalogue(films.length ? films : mockFilms)));
-  return pending;
-}
-
-async function fetchFilms(): Promise<Film[]> {
-  if (typeof window === 'undefined') return [];
-  try {
-    const res = await fetch('/catalogue.json', { signal: AbortSignal.timeout(6000) });
-    if (!res.ok) return [];
-    const json = (await res.json()) as { films?: Film[] };
-    return Array.isArray(json.films) ? json.films.filter((f) => f && typeof f.id === 'number' && f.title) : [];
-  } catch {
-    return [];
+  if (typeof window === 'undefined') {
+    cached = buildCatalogue(committedFilms);
+    return Promise.resolve(cached);
   }
+  pending ??= fetch('/catalogue.json')
+    .then((res) => {
+      if (!res.ok) throw new Error(`catalogue ${res.status}`);
+      return res.json();
+    })
+    .then((file: { films?: unknown }) => {
+      if (!Array.isArray(file.films) || !file.films.length) throw new Error('empty catalogue');
+      return buildCatalogue(file.films as Film[]);
+    })
+    .catch(() => buildCatalogue(mockFilms))
+    .then((catalogue) => (cached = catalogue));
+  return pending;
 }
 
 /** Synchronous access after loadCatalogue() has resolved. */
@@ -60,7 +68,7 @@ export function getCatalogueSync(): Catalogue | null {
   return cached;
 }
 
-/** Mock-backed catalogue (tests, or before the real one has loaded). Server routes: lib/server/catalogue.ts. */
+/** Server-side, synchronous: reads the committed catalogue.json. */
 export function catalogueServer(): Catalogue {
-  return buildCatalogue(mockFilms);
+  return (cached ??= buildCatalogue(committedFilms));
 }

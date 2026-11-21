@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "seed": "tsx scripts/build-db.ts",
+    "seed": "tsx scripts/seed-catalogue.ts",
     "db:build": "tsx scripts/build-db.ts",
     "db:build:quick": "tsx scripts/build-db.ts --movies=600 --tv=200",
     "preflight": "npm run typecheck && npm run lint && npm run build",

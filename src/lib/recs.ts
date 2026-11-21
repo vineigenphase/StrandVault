@@ -518,3 +518,32 @@ export function signalsFrom(me: string | null, friends: Friend[], myFavs: number
   if (me) for (const id of new Set([...myFavs, ...(myTop !== null ? [myTop] : [])])) favs.push({ userId: me, filmId: id, top: id === myTop });
   return { me, favs, names };
 }
+
+// ── Compatibility layer for the BE routes (/api/recs, /api/rico) and api.ts ─────────────
+// They were written against the first BACKEND.md §6 API; these adapters run the engine above.
+
+export interface RecsInput {
+  catalogue: Pick<Catalogue, 'films' | 'trending' | 'byId'>;
+  userFavs: number[];             // includes #1
+  userTop: number | null;
+  friends: Friend[];              // excludes the user
+  watched?: number[];             // films the user hit PLAY on
+  mood?: Mood;                    // used by RICO
+  exclude?: number[];
+}
+
+const ME = '__me__';
+
+/** Engine-backed replacement for the original scoreRecs(). */
+export function scoreRecs(input: RecsInput, limit = 18): RecItem[] {
+  const s = signalsFrom(ME, input.friends.filter((f) => f.userId !== ME), input.userFavs, input.userTop);
+  s.watches = (input.watched ?? []).map((filmId) => ({ userId: ME, filmId }));
+  return recommend(input.catalogue.films, s, { k: limit, mood: input.mood, exclude: input.exclude });
+}
+
+/** Pad a short list with trending titles (no duplicates). */
+export function padWithTrending(items: RecItem[], catalogue: Pick<Catalogue, 'films' | 'trending'>, limit = 18): RecItem[] {
+  if (items.length >= limit) return items.slice(0, limit);
+  const seen = new Set(items.map((i) => i.filmId));
+  return [...items, ...trendingFallback(catalogue, limit * 2).filter((t) => !seen.has(t.filmId))].slice(0, limit);
+}

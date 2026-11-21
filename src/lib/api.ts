@@ -1,24 +1,13 @@
 // Typed client wrappers for every /api route (BACKEND.md §5.2). Lane BE.
-// T0 version: final signatures, returning mocks after a fake delay. Wrappers never throw.
-// TODO(BE2): join / favourite / open / watch / storeState → real fetches.
-// TODO(BE3): recs → GET /api/recs first; the local engine below stays as the offline fallback.
-// TODO(BE4): rico → real fetch + localRicoFallback.
+// Wrappers never throw: timeouts/errors become local fallbacks computed from
+// the cached catalogue (or mocks.ts before BE1 lands).
 import type {
-  FavReq, FavRes, JoinReq, JoinRes, OpenReq, RecsRes, RicoReq, RicoRes, StoreStateRes, WatchReq,
+  FavReq, FavRes, JoinReq, JoinRes, Look, OpenReq, RecsRes, RicoReq, RicoRes, StoreStateRes, WatchReq,
 } from './types';
-import { loadCatalogue } from './catalogue';
-import { mockFilms, mockFriends, mockRecs, mockRicoPick, mockStaffPicks } from './mocks';
-import { recommend, signalsFrom, trendingFallback } from './recs';
-
-const delay = <T>(value: T, min = 200, max = 600): Promise<T> =>
-  new Promise((r) => setTimeout(() => r(value), min + Math.random() * (max - min)));
-
-const MOOD_AISLES = {
-  laugh: ['comedy', 'animated'],
-  scare: ['horror'],
-  date: ['romance', 'comedy', 'drama'],
-  mind: ['scifi', 'cult', 'drama'],
-} as const;
+import { mockFilms, mockFriends, mockStaffPicks } from './mocks';
+import { buildCatalogue, getCatalogueSync } from './catalogue';
+import { scoreRecs, trendingFallback } from './recs';
+import { localRicoFallback } from './rico-fallback';
 
 const DEFAULT_CODE = process.env.NEXT_PUBLIC_STORE_CODE || 'KCL';
 
@@ -27,66 +16,99 @@ const uuid = () =>
     ? crypto.randomUUID()
     : `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
+const cleanName = (value: string) =>
+  String(value ?? '').toUpperCase().replace(/[^A-Z0-9 ]/g, '').trim().slice(0, 12) || 'GUEST';
+
+const catalogueNow = () => getCatalogueSync() ?? buildCatalogue(mockFilms);
+
+async function post<T>(path: string, payload: unknown, fallback: T, timeout = 4000): Promise<T> {
+  try {
+    const res = await fetch(`/api/${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(timeout),
+    });
+    if (!res.ok) return fallback;
+    return await res.json() as T;
+  } catch {
+    return fallback;
+  }
+}
+
+async function get<T>(path: string, fallback: T, timeout = 4000): Promise<T> {
+  try {
+    const res = await fetch(`/api/${path}`, { signal: AbortSignal.timeout(timeout) });
+    if (!res.ok) return fallback;
+    return await res.json() as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function fireAndForget(path: string, payload: unknown): void {
+  void fetch(`/api/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  }).catch(() => {});
+}
+
 export const api = {
   join(req: JoinReq): Promise<JoinRes> {
+    const name = cleanName(req.name);
     const userId = req.userId ?? uuid();
-    return delay({
+    const look: Look = req.look ?? {
+      jacket: '#FF2E88', hair: 'mullet', hairColor: '#3B1F0E', skin: '#E0AC69', shades: true,
+    };
+    const fallback: JoinRes = {
       userId,
-      presence: { userId, name: req.name.toUpperCase().slice(0, 12) || 'GUEST', look: req.look, favId: req.favId, scene: 'street' },
+      presence: { userId, name, look, favId: req.favId, scene: 'street' },
       offline: true,
-    });
+    };
+    return post('join', { ...req, name }, fallback);
   },
 
   favourite(req: FavReq): Promise<FavRes> {
-    return delay({
-      ok: true,
-      favourites: req.on || req.setTop ? [req.filmId] : [],
-      favId: req.setTop ? req.filmId : null,
-    });
+    return post('favourite', req, { ok: false, favourites: [], favId: null });
   },
 
   open(req: OpenReq): void {
-    void req;
+    fireAndForget('open', req);
   },
 
   watch(req: WatchReq): void {
-    void req;
+    fireAndForget('watch', req);
   },
 
-  /** Offline: the real engine (lib/recs.ts) over the loaded catalogue + demo friends. */
-  async recs(userId: string | null, code: string = DEFAULT_CODE, myFavs: number[] = [], myTop: number | null = null): Promise<RecsRes> {
-    void code;
-    try {
-      const c = await loadCatalogue();
-      const items = recommend(c.films, signalsFrom(userId, mockFriends, myFavs, myTop), { k: 18 });
-      return delay({ items: items.length ? items : trendingFallback(c, 18), fallback: true });
-    } catch {
-      return delay({ items: mockRecs, fallback: true });
-    }
+  /** Server recs first; offline, the same engine runs locally over the catalogue + my faves. */
+  recs(userId: string | null, code: string = DEFAULT_CODE, myFavs: number[] = [], myTop: number | null = null): Promise<RecsRes> {
+    const catalogue = catalogueNow();
+    const local = myFavs.length || myTop !== null
+      ? scoreRecs({ catalogue, userFavs: myFavs, userTop: myTop, friends: [] }, 18)
+      : [];
+    const fallback: RecsRes = { items: local.length ? local : trendingFallback(catalogue), fallback: true };
+    const query = new URLSearchParams({ code });
+    if (userId) query.set('userId', userId);
+    return get(`recs?${query.toString()}`, fallback);
   },
 
   rico(req: RicoReq): Promise<RicoRes> {
-    const pool = req.mood
-      ? mockFilms.filter((f) => (MOOD_AISLES[req.mood!] as readonly string[]).includes(f.aisle))
-      : mockFilms;
-    const candidates = pool.filter((f) => !req.exclude?.includes(f.id));
-    const pick = candidates[Math.floor(Math.random() * candidates.length)];
-    if (!pick) return delay(mockRicoPick, 800, 1600);
-    return delay(
-      {
-        filmId: pick.id,
-        line: `${pick.title}. Trust me, kid, this one's got legs.`,
-        reason: 'RICO SAYS SO',
-        backups: candidates.filter((f) => f.id !== pick.id).slice(0, 3).map((f) => f.id),
-        fallback: true,
-      },
-      800,
-      1600,
-    );
+    const catalogue = catalogueNow();
+    const exclude = req.exclude?.slice(0, 50);
+    const candidates = scoreRecs({
+      catalogue, userFavs: [], userTop: null, friends: [], mood: req.mood, exclude,
+    }, 30);
+    const pool = candidates.length ? candidates : trendingFallback(catalogue, 30);
+    const fallback = localRicoFallback(pool, req.mood, undefined, catalogue);
+    return post('rico', req, fallback, 6000);
   },
 
   storeState(code: string = DEFAULT_CODE): Promise<StoreStateRes> {
-    void code;
-    return delay({ friends: mockFriends, staffPicks: mockStaffPicks });
+    return get(`store-state?code=${encodeURIComponent(code)}`, {
+      friends: mockFriends,
+      staffPicks: mockStaffPicks,
+    });
   },
 };

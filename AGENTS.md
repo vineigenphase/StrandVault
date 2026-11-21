@@ -33,7 +33,7 @@ If a feature doesn't make this better, it waits.
 1. **Stay in your lane.** Only edit files your lane owns (§4). Need something elsewhere? Add `// TODO(<lane>): …` and say so in your summary.
 2. **`src/lib/types.ts` is FROZEN** after task T0. Changing it needs a human OK.
 3. **The demo never needs the network for film data.** Shelves come from `public/catalogue.json` and search falls back to `public/vault-index.json` (both written by `npm run db:build`, see DATA.md). Posters can be downloaded locally too (`npm run db:build -- --images`).
-4. **Secrets are server-only.** `TMDB_TOKEN`, `WATCHMODE_KEY` and `SUPABASE_SERVICE_ROLE_KEY` never appear in client code. Only `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` go to the browser.
+4. **Secrets are server-only.** `TMDB_TOKEN`, `WATCHMODE_KEY`, `OPENAI_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` never appear in client code. Only `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` go to the browser.
 5. **Original IP only.** No Rockstar, GTA or Vice City logos, names, screenshots, characters, ripped fonts or music. No Blockbuster name or logo. The *vibe* is ours to take: sunset neon, palms, synthwave, deco type, GTA-style HUD conventions, "mission passed" banners.
 6. **No copyrighted music.** Royalty-free synthwave or silence plus UI blips.
 7. **No React state per frame.** Movement runs in a `requestAnimationFrame` loop that writes `transform` straight onto DOM refs. React renders structure and responds to events only.
@@ -58,7 +58,7 @@ If a feature doesn't make this better, it waits.
 | DB | Supabase Postgres (see `BACKEND.md`) |
 | Film data | **THE VAULT** (DATA.md): TMDB → Supabase `titles` (~7,000 movies + shows, fuzzy search, grows on demand) + `public/catalogue.json` shelves + `public/vault-index.json` offline index |
 | Watch links | Watchmode web URLs, then provider search URL fallbacks, then the TMDB watch page |
-| RICO clerk | **No paid AI, £0.** Picks come from the recs engine plus mood filters; lines come from a hand-written template bank (`POST /api/rico`, BACKEND.md §7) |
+| RICO clerk | **£0 by default.** Picks come from the recs engine plus mood filters; lines from a scripted bank. Optional OpenAI lines if `OPENAI_API_KEY` is set (`POST /api/rico`, BACKEND.md §7) |
 | Recs | `src/lib/recs.ts`: streaming-style engine (content taste + item-item CF + crew + quality prior, MMR diversity, exploration, explanations), BACKEND.md §6 |
 | Hosting | Vercel |
 | Agents | JetBrains Air: parallel tasks from `TASKS.md`, one branch each |
@@ -74,6 +74,7 @@ npm install
 npm run dev            # localhost:3000
 npm run db:build       # THE VAULT: TMDB → Supabase titles + catalogue.json + vault-index.json (DATA.md). Flags: --images --watchmode
 npm run db:build:quick # 600 movies + 200 shows, to check the wiring (~30s)
+npm run seed           # legacy shelf-only seeder (scripts/seed-catalogue.ts); db:build supersedes it
 npm run seed:personas  # scripts/seed-personas.ts → demo friends in Supabase
 npm run typecheck
 npm run lint
@@ -139,7 +140,7 @@ strandvault/
 │  │  ├─ vault.ts                 BE   client: searchVault(q), getTitle(id)
 │  │  ├─ api.ts                   BE   typed fetch wrappers for every route
 │  │  ├─ supabase.ts              BE   browser client (anon)
-│  │  ├─ server/                  BE   db (service client), tmdb, titles, catalogue (server loader)
+│  │  ├─ server/                  BE   supabase + db (service clients), tmdb, titles, openai (optional), rico-prompt
 │  │  ├─ realtime.ts              GAME useStore(code): presence + broadcast hook
 │  │  └─ events.ts                GAME tiny event bus (game ↔ overlays)
 │  └─ styles/                     UI   tokens.css, globals.css, fx.css
