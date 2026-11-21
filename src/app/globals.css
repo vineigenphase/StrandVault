@@ -1,27 +1,35 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
 
+/* Map next/font variables onto the token font names (CLAUDE.md §8). */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-neon: var(--ff-neon), cursive;
+  --font-script: var(--ff-script), cursive;
+  --font-banner: var(--ff-banner), sans-serif;
+  --font-hud: var(--ff-hud), monospace;
+  --font-term: var(--ff-term), monospace;
+  --font-body: var(--ff-body), sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-night: var(--night);
+  --color-dusk: var(--dusk);
+  --color-neon-pink: var(--neon-pink);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-sunset: var(--sunset);
+  --color-palm: var(--palm);
+  --color-hazard: var(--hazard);
+  --color-cream: var(--cream);
+  --font-neon: var(--ff-neon), cursive;
+  --font-script: var(--ff-script), cursive;
+  --font-banner: var(--ff-banner), sans-serif;
+  --font-hud: var(--ff-hud), monospace;
+  --font-term: var(--ff-term), monospace;
+  --font-body: var(--ff-body), sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--night);
+  color: var(--cream);
+  font-family: var(--font-body);
 }

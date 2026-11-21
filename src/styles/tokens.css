@@ -1,9 +1,10 @@
 :root{
-  --night:#0B0620; --dusk:#2A0B45;
-  --neon-pink:#FF2E88; --neon-cyan:#00E5FF; --sunset:#FF8A3D; --palm:#1DE9B6; --hazard:#FFD300; --vhs-cream:#F4E8C1;
-  --aisle-action:#FF8A3D; --aisle-comedy:#FFD300; --aisle-horror:#FF3B3B; --aisle-scifi:#00E5FF;
-  --aisle-drama:#B388FF; --aisle-romance:#FF2E88; --aisle-animated:#1DE9B6; --aisle-cult:#C6FF00;
-  --sunset-grad:linear-gradient(180deg,#FF8A3D 0%,#FF2E88 35%,#7B2CBF 65%,#0B0620 100%);
+  --night:#0B0620; --dusk:#2A0B45; --neon-pink:#FF2E88; --neon-cyan:#00E5FF; --sunset:#FF8A3D;
+  --palm:#1DE9B6; --hazard:#FFD300; --cream:#F4E8C1;
+  --a-action:#FF8A3D; --a-comedy:#FFD300; --a-horror:#FF3B3B; --a-scifi:#00E5FF;
+  --a-drama:#B388FF; --a-romance:#FF2E88; --a-animated:#1DE9B6; --a-cult:#C6FF00;
+  --sunset-grad:linear-gradient(180deg,#FFB86B 0%,#FF8A3D 22%,#FF2E88 48%,#7B2CBF 72%,#0B0620 100%);
   --font-neon:'Monoton'; --font-script:'Yellowtail'; --font-banner:'Bungee';
   --font-hud:'Press Start 2P'; --font-term:'VT323'; --font-body:'Inter';
+  --ease-out:cubic-bezier(.16,1,.3,1); --ease-snap:cubic-bezier(.68,-0.6,.32,1.6);
 }

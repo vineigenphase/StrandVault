@@ -1,5 +1,5 @@
 {
-  "name": "rewind-city",
+  "name": "strandvault",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,10 +10,15 @@
     "typecheck": "tsc --noEmit",
     "seed": "tsx scripts/seed-catalogue.ts",
     "preflight": "npm run typecheck && npm run lint && npm run build",
-    "worktree:setup": "node scripts/worktree-setup.mjs"
+    "worktree:setup": "node scripts/worktree-setup.mjs",
+    "seed:personas": "tsx scripts/seed-personas.ts",
+    "agents:sync": "node scripts/sync-agents.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.2",
+    "motion": "^14.14.0",
     "next": "16.4.6",
+    "openai": "^7.62.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
