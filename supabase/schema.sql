@@ -47,3 +47,10 @@ create index if not exists events_user_idx on events (user_id, created_at desc);
 alter table profiles   enable row level security;
 alter table favourites enable row level security;
 alter table events     enable row level security;
+
+-- Grants: newer Supabase projects don't auto-grant API roles on tables created in SQL, so the
+-- service-role key (used only by route handlers) needs explicit access. anon/authenticated get
+-- nothing here: browsers never touch these tables (RLS on, no policies).
+grant usage on schema public to service_role;
+grant all on table public.profiles, public.favourites, public.events to service_role;
+grant usage, select on all sequences in schema public to service_role;

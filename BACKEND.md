@@ -82,6 +82,11 @@ alter table profiles   enable row level security;
 alter table favourites enable row level security;
 alter table events     enable row level security;
 -- No anon policies on purpose: all table access goes through API routes with the service role.
+
+-- Newer Supabase projects don't auto-grant API roles on SQL-created tables:
+grant usage on schema public to service_role;
+grant all on table public.profiles, public.favourites, public.events to service_role;
+grant usage, select on all sequences in schema public to service_role;
 ```
 
 ### 3.2 Realtime (lane GAME implements, BE documents)
