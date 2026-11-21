@@ -1,11 +1,14 @@
 // Typed client wrappers for every /api route (BACKEND.md §5.2). Lane BE.
 // T0 version: final signatures, returning mocks after a fake delay. Wrappers never throw.
 // TODO(BE2): join / favourite / open / watch / storeState → real fetches.
-// TODO(BE3): recs → real fetch.  TODO(BE4): rico → real fetch + localRicoFallback.
+// TODO(BE3): recs → GET /api/recs first; the local engine below stays as the offline fallback.
+// TODO(BE4): rico → real fetch + localRicoFallback.
 import type {
   FavReq, FavRes, JoinReq, JoinRes, OpenReq, RecsRes, RicoReq, RicoRes, StoreStateRes, WatchReq,
 } from './types';
+import { loadCatalogue } from './catalogue';
 import { mockFilms, mockFriends, mockRecs, mockRicoPick, mockStaffPicks } from './mocks';
+import { recommend, signalsFrom, trendingFallback } from './recs';
 
 const delay = <T>(value: T, min = 200, max = 600): Promise<T> =>
   new Promise((r) => setTimeout(() => r(value), min + Math.random() * (max - min)));
@@ -50,9 +53,16 @@ export const api = {
     void req;
   },
 
-  recs(userId: string | null, code: string = DEFAULT_CODE): Promise<RecsRes> {
-    void userId; void code;
-    return delay({ items: mockRecs, fallback: true });
+  /** Offline: the real engine (lib/recs.ts) over the loaded catalogue + demo friends. */
+  async recs(userId: string | null, code: string = DEFAULT_CODE, myFavs: number[] = [], myTop: number | null = null): Promise<RecsRes> {
+    void code;
+    try {
+      const c = await loadCatalogue();
+      const items = recommend(c.films, signalsFrom(userId, mockFriends, myFavs, myTop), { k: 18 });
+      return delay({ items: items.length ? items : trendingFallback(c, 18), fallback: true });
+    } catch {
+      return delay({ items: mockRecs, fallback: true });
+    }
   },
 
   rico(req: RicoReq): Promise<RicoRes> {
