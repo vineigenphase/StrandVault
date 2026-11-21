@@ -1,12 +1,13 @@
-// TODO(GAME): replace with <Game scene="street"/> (CLAUDE.md §4). Placeholder so the deploy is on-brand.
+// Host / projector view (CLAUDE.md §0, §4). Lane GAME.
+// TODO(G5): QR "SCAN TO PULL UP" sign, ?npcs=1, realtime presence → OverlayRoot online.
+import OverlayRoot from '@/components/OverlayRoot';
+import Game from '@/game/Game';
+
 export default function Home() {
   return (
-    <main
-      className="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-center"
-      style={{ background: "var(--sunset-grad)" }}
-    >
-      <h1 className="font-neon text-5xl sm:text-7xl text-neon-pink">STRANDVAULT</h1>
-      <p className="font-term text-2xl text-cream">TRACKING… PLAY ▶</p>
+    <main className="flex flex-1 flex-col">
+      <Game scene="street" host />
+      <OverlayRoot />
     </main>
   );
 }
