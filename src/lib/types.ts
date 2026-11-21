@@ -1,4 +1,5 @@
 // SHARED · FROZEN after T0 (CLAUDE.md §1.2, §5). Changes need a human OK.
+// Additive, optional vault fields approved by the human (THE VAULT, DATA.md §5).
 
 export type ProviderId = 'netflix'|'prime'|'disney'|'apple'|'now'|'iplayer'|'channel4'|'paramount'|'other';
 export type Aisle = 'action'|'comedy'|'horror'|'scifi'|'drama'|'romance'|'animated'|'cult';
@@ -11,21 +12,27 @@ export interface Film {
   rating: number; votes: number; trending: boolean;
   cast: string[]; director?: string; trailerKey?: string;   // YouTube key
   providers: Provider[];                                    // GB
+  // THE VAULT additions (all optional, so nothing existing breaks):
+  mediaType?: 'movie'|'tv';   // TV shows render as box sets
+  imdbId?: string; seasons?: number; episodes?: number; certification?: string; tmdbWatchLink?: string;
 }
+// Film.id is the APP ID: movie = TMDB id, TV show = -TMDB id (never collide; favourites.film_id stays int).
 
 export interface Look { jacket: string; hair: 'flat'|'mullet'|'curls'|'buzz'|'long'; hairColor: string; skin: string; shades: boolean }
 export interface PresenceState { userId: string; name: string; look: Look; favId: number|null; scene: 'street'|'interior'; isDemo?: boolean }
 export interface MoveMsg { userId: string; x: number; dir: 1|-1; moving: boolean; scene: 'street'|'interior'; t: number }
 
-export interface RecItem { filmId: number; score: number; reason: string; friends: string[] }
+export type ReasonType = 'crew'|'taste'|'fresh'|'quality'|'mood';
+export interface RecItem { filmId: number; score: number; reason: string; friends: string[]; reasonType?: ReasonType }
 export interface RicoPick { filmId: number; line: string; reason: string; backups: number[] }
 
-export type OpenSource = 'shelf'|'rico'|'friend'|'staffpicks'|'yourshelf';
+export type OpenSource = 'shelf'|'rico'|'friend'|'staffpicks'|'yourshelf'|'search';
 export type GameEvent =
   | { type: 'zone'; section: Section | 'door' | null }
   | { type: 'open-library'; section: Section }
   | { type: 'open-film'; filmId: number; source: OpenSource; ricoLine?: string; from?: { x: number; y: number } }
   | { type: 'rico' }
+  | { type: 'open-search' }
   | { type: 'close' };
 
 export type Broadcast =

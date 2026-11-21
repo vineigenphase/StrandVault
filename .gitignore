@@ -44,3 +44,6 @@ next-env.d.ts
 # IntelliJ (shared run configs live in /.run, which IS committed)
 /.idea/
 *.iml
+
+# THE VAULT build cache (scripts/build-db.ts)
+scripts/.cache/

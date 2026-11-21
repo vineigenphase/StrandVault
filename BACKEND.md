@@ -1,6 +1,7 @@
 # BACKEND.md: StrandVault
 
 > Source of truth for env, database, catalogue, API routes, recs and RICO. Lane **BE** owns everything here unless marked otherwise.
+> **THE VAULT** (the movie + TV database, search, `build-db`) is documented in **`DATA.md`**. Read it for anything about titles or search.
 > Read `CLAUDE.md` first. Types come from `src/lib/types.ts` (frozen after T0). Wire types for the routes below are appended to `types.ts` in T0 (§5.0) and freeze with it.
 
 ---
@@ -26,12 +27,11 @@
 | `NEXT_PUBLIC_STORE_CODE` | browser + server | default store channel, default `KCL` | no |
 | `NEXT_PUBLIC_SITE_URL` | browser | QR code target (`{url}/join?code=KCL`) on the host screen | yes (QR) |
 | `SUPABASE_SERVICE_ROLE_KEY` | **server only** | API routes, `seed-personas.ts` | yes (profiles, faves) |
-| `OPENAI_API_KEY` | **server only** | `/api/rico` | no, falls back to scripted RICO |
-| `OPENAI_MODEL` | **server only** | `/api/rico`. Use a small, fast model with structured outputs. Set it explicitly | no |
-| `TMDB_TOKEN` | **seed script only** | `scripts/seed-catalogue.ts` (v4 read token, Bearer) | no (catalogue is committed) |
-| `WATCHMODE_KEY` | **seed script only** | `scripts/seed-catalogue.ts` for deep watch links | no |
+| `DEMO_OFFLINE` | **server only** | set to `1` to make `/api/search` + `/api/title` skip DB/TMDB (client uses `/vault-index.json`) | no |
+| `TMDB_TOKEN` | **server + scripts** | `scripts/build-db.ts`, and live search in `/api/search` + `/api/title` (v4 read token or v3 key) | no (catalogue is committed; search falls back to the vault/index) |
+| `WATCHMODE_KEY` | **build script only** | `build-db --watchmode` for deep watch links | no |
 
-Rules: nothing without `NEXT_PUBLIC_` may be imported by a client component. `TMDB_TOKEN` and `WATCHMODE_KEY` are never read at runtime. If a server var is missing, the route degrades to its fallback and logs one `console.warn`.
+Rules: nothing without `NEXT_PUBLIC_` may be imported by a client component. `WATCHMODE_KEY` is never read at runtime; `TMDB_TOKEN` only by the two vault routes (server). If a server var is missing, the route degrades to its fallback and logs one `console.warn`.
 
 ---
 
@@ -39,7 +39,7 @@ Rules: nothing without `NEXT_PUBLIC_` may be imported by a client component. `TM
 
 ### 3.1 Schema (`supabase/schema.sql`)
 
-Run it in the Supabase SQL editor. It's idempotent.
+Run it in the Supabase SQL editor. It's idempotent. Then run **`supabase/titles.sql`** (THE VAULT: `titles` table + `search_titles()`, see DATA.md).
 
 ```sql
 create extension if not exists pgcrypto;
@@ -100,78 +100,33 @@ alter table events     enable row level security;
 
 ---
 
-## 4. Catalogue
+## 4. Catalogue (THE VAULT)
 
-### 4.1 File: `public/catalogue.json`
+The catalogue is built by **`npm run db:build`** (`scripts/build-db.ts`), which replaces the old seed script. Full details, flags and setup are in **`DATA.md`**. In short:
 
-```ts
-interface CatalogueFile { generatedAt: string; region: 'GB'; films: Film[] }
-```
+- **Supabase `titles`:** the top ~5,000 movies + 2,000 TV shows with full detail (overview, cast, trailer, GB certification, GB providers), searchable with typo tolerance. Anything searched that isn't there is fetched from TMDB and stored on the fly.
+- **`public/catalogue.json`:** the curated shelf set the store renders offline (16 per aisle, up to 25% TV box sets), shape `{ generatedAt, region, counts, films: Film[] }`.
+- **`public/vault-index.json`:** a tiny index of every vault title for instant/offline search.
+- **App id:** `Film.id` = TMDB id for movies and **-TMDB id for TV**. Use `toAppId()` / `fromAppId()` from `lib/server/titles.ts`; never strip the sign.
+- **Aisle rules:** animation → ANIMATED; any 1980–1989 title → CULT '80s; otherwise horror → sci-fi → comedy → romance → action/thriller/war/western → drama.
 
-Target size: **~340 films** (40 per aisle + ~20 trending extras), under 1.5 MB. It's committed.
+### 4.1 Loaders
+- `src/lib/catalogue.ts` (client): `loadCatalogue()` fetches `/catalogue.json` once and falls back to `mocks.ts`. Index: `byId`, `byAisle`, `trending`, `search()`.
+- `src/lib/server/catalogue.ts` (routes): `serverCatalogue()` reads `public/catalogue.json` once per instance, falls back to mocks.
+- `src/lib/vault.ts` (client): `searchVault(q)` (API, then offline index) and `getTitle(id, byId)` (shelf first, then `/api/title`). **Every "open film" entry point uses `getTitle`**, so search results and friends' faves that aren't on a shelf still open.
 
-### 4.2 Seed script (`scripts/seed-catalogue.ts`, `npm run seed`)
+### 4.2 `src/lib/links.ts`: `watchUrl(film, provider)`
+1. Provider deep link (Watchmode `web_url`) if present.
+2. Otherwise the provider's search page with the title encoded (netflix, prime, disney, apple, now, iplayer, channel4, paramount).
+3. Otherwise `film.tmdbWatchLink` / `https://www.themoviedb.org/movie/{id}/watch?locale=GB`.
 
-1. For each aisle, TMDB `discover/movie` (region GB, `vote_count.gte=500`, sorted by popularity), mapped by genre:
-
-   | Aisle | TMDB genres | Notes |
-   |---|---|---|
-   | action | 28, 12, 53 | |
-   | comedy | 35 | |
-   | horror | 27 | |
-   | scifi | 878, 14 | |
-   | drama | 18, 80 | |
-   | romance | 10749 | |
-   | animated | 16 | |
-   | cult | any | `primary_release_date.lte=1989-12-31`, sorted by vote count |
-
-   **Aisle assignment** (one aisle per film, first match wins): year ≤ 1989 → `cult`, then `animated > horror > scifi > comedy > romance > action > drama`. Dedupe by id.
-2. `trending/movie/week`: mark `trending: true` and add any missing films (aisle by the rule above).
-3. Per film, `movie/{id}?append_to_response=credits,videos,watch/providers`: runtime, tagline, top-5 cast, director, first YouTube trailer key, and **GB** providers (flatrate → `stream`, free/ads → `free`, rent, buy).
-4. Provider URLs: if `WATCHMODE_KEY` is set, look up Watchmode `title/{tmdb}/sources?regions=GB` and use `web_url` per provider. Otherwise leave `url` empty and let `watchUrl()` resolve it (§4.4).
-5. Posters: `https://image.tmdb.org/t/p/w342{path}`, backdrop `w1280`. With `--images`, download to `public/posters/{id}.jpg` and `{id}-bd.jpg` and rewrite the paths to `/posters/...`.
-6. Throttle to about 30 req/s. Retry 429s with backoff. Drop films with no poster.
-
-Provider ID map (TMDB provider_id → `ProviderId`): 8 Netflix → `netflix`, 9/119 Prime → `prime`, 337 Disney+ → `disney`, 2/350 Apple → `apple`, 39/591 NOW → `now`, 38 BBC iPlayer → `iplayer`, 103 Channel 4 → `channel4`, 531/582 Paramount+ → `paramount`, everything else → `other` (keep the name). Store the logo as `https://image.tmdb.org/t/p/w92{logo_path}`.
-
-### 4.3 `src/lib/catalogue.ts`
-
-```ts
-export interface Catalogue {
-  films: Film[];
-  byId: Map<number, Film>;
-  byAisle: Record<Aisle, Film[]>;   // sorted by rating*log10(votes) desc
-  trending: Film[];
-  search(q: string, limit?: number): Film[];  // case-insensitive title prefix, then substring
-}
-export function loadCatalogue(): Promise<Catalogue>;   // client: fetch('/catalogue.json') once, memoised
-export function getCatalogueSync(): Catalogue | null;  // after load
-export function catalogueServer(): Catalogue;          // server: imports the JSON, memoised
-```
-
-If the fetch fails, fall back to `mocks.ts` films so nothing renders blank.
-
-### 4.4 `src/lib/links.ts`: `watchUrl(film, provider): string`
-
-1. If `provider.url` is a deep link (Watchmode `web_url`), return it.
-2. Otherwise use a provider search URL with the title encoded:
-   - netflix `https://www.netflix.com/search?q=`
-   - prime `https://www.amazon.co.uk/s?i=instant-video&k=`
-   - disney `https://www.disneyplus.com/search?q=`
-   - apple `https://tv.apple.com/search?term=`
-   - now `https://www.nowtv.com/search?q=`
-   - iplayer `https://www.bbc.co.uk/iplayer/search?q=`
-   - channel4 `https://www.channel4.com/search?q=`
-   - paramount `https://www.paramountplus.com/search/?q=`
-3. Otherwise (`other`, or nothing else applies): `https://www.themoviedb.org/movie/{id}/watch?locale=GB`.
-
-Also export `sortProviders(providers)` (stream, free, rent, buy; then Netflix, Prime, Disney first) and `trailerUrl(film)` (`https://www.youtube.com/watch?v={key}` or `null`).
+Also `sortProviders()` (stream, free, rent, buy; Netflix/Prime/Disney+ first) and `trailerUrl()`.
 
 ---
 
 ## 5. API routes
 
-All routes live under `src/app/api/<name>/route.ts`, take and return JSON, and validate input by hand (no zod dependency needed). Cache Components is on in `next.config.ts`: POST handlers always run at request time, and the GET handlers read `request.url`, so they run at request time too. **Don't add `'use cache'`** to any of these. Next.js 16 conventions: see `node_modules/next/dist/docs/01-app/01-getting-started/15-route-handlers.md`.
+All routes live under `src/app/api/<name>/route.ts`, take and return JSON, and validate input by hand (no zod dependency needed). Cache Components is on in `next.config.ts`: POST handlers always run at request time, and the GET handlers read `request.url`, so they run at request time too. **Don't add `'use cache'`** to any of these. **Never export `dynamic`, `revalidate` or `fetchCache`** from a route: with Cache Components on they fail the build. Next.js 16 conventions: see `node_modules/next/dist/docs/01-app/01-getting-started/15-route-handlers.md`.
 
 ### 5.0 Wire types (appended to `src/lib/types.ts` in T0, then frozen)
 
@@ -195,6 +150,7 @@ export interface WatchReq { userId: string; filmId: number; provider: ProviderId
 export interface OkRes    { ok: boolean }
 
 export interface RecsRes  { items: RecItem[]; fallback: boolean }
+// RecItem.reasonType?: 'crew'|'taste'|'fresh'|'quality'|'mood'  ·  OpenSource adds 'search'  ·  GameEvent adds { type: 'open-search' }
 
 export interface RicoReq  { userId: string | null; mood?: Mood; exclude?: number[] }
 export interface RicoRes  extends RicoPick { fallback: boolean }
@@ -212,6 +168,8 @@ export interface StoreStateRes { friends: Friend[]; staffPicks: StaffPick[] }
 | `POST /api/watch` | `WatchReq` | `OkRes` | Insert `events(kind='watch', provider)`. The client opens the link itself (it must open synchronously in the click handler to avoid popup blockers, then fire this). | `{ ok:false }` |
 | `GET /api/recs?userId=&code=` | query | `RecsRes` | Load the user's favourites, the store's friends + favourites, and the user's watch events, then run `scoreRecs()` (§6). Top 18. | `trendingFallback()` and `fallback:true` |
 | `POST /api/rico` | `RicoReq` | `RicoRes` | See §7. Always resolves within about 5.5s. | scripted pick, `fallback:true` |
+| `GET /api/search?q=&type=&limit=` | query | `{ results: Film[]; source }` | Vault full-text + fuzzy search (`search_titles`); if < 6 hits, live TMDB search → fetch details → store → return. 4.5s cap on the live part. | `{ results: [], source: 'none' }`; client uses `/vault-index.json` |
+| `GET /api/title/[appId]` | path | `Film` | Vault row by app id; else fetch from TMDB, store, return. | 404; client keeps what it had |
 | `GET /api/store-state?code=` | query | `StoreStateRes` | Profiles in the store with `last_seen` in the last 12h **or** `is_demo`, each with their favourites. `staffPicks` aggregates favourites across friends, sorted by count then rating, max 24. | `{ friends: [], staffPicks: [] }` |
 
 ### 5.2 `src/lib/api.ts` (typed client wrappers)
@@ -222,7 +180,7 @@ export const api = {
   favourite(req: FavReq): Promise<FavRes>,
   open(req: OpenReq): void,                      // fire-and-forget, keepalive: true
   watch(req: WatchReq): void,                    // fire-and-forget, keepalive: true
-  recs(userId: string | null, code?: string): Promise<RecsRes>,
+  recs(userId: string | null, code?: string, myFavs?: number[], myTop?: number | null): Promise<RecsRes>,
   rico(req: RicoReq): Promise<RicoRes>,           // 6s client timeout → local fallback
   storeState(code?: string): Promise<StoreStateRes>,
 };
@@ -232,79 +190,53 @@ Every wrapper uses `AbortSignal.timeout` (4s default, 6s for rico), catches ever
 
 ---
 
-## 6. Recommendations (`src/lib/recs.ts`, pure and isomorphic)
+## 6. Recommendations (`src/lib/recs.ts`, pure and isomorphic) ✅ built
+
+Modelled on how large streaming recommenders work, scaled to a store-sized catalogue. Verified by a test script covering cold start, taste, crew, diversity, mood, exclusions, rows, determinism, and **7,000 titles × 40 users in about 0.4s**.
 
 ```ts
-export interface RecsInput {
-  catalogue: Catalogue;
-  userFavs: number[];             // includes #1
-  userTop: number | null;
-  friends: Friend[];              // excludes the user
-  watched?: number[];             // films the user hit PLAY on
-  mood?: Mood;                    // used by RICO only
-  exclude?: number[];
-}
-export function scoreRecs(i: RecsInput, limit = 18): RecItem[];
-export function trendingFallback(c: Catalogue, limit = 18): RecItem[];
-export function staffPicks(friends: Friend[], c: Catalogue, limit = 24): StaffPick[];
+recommend(films, signals, { k, mood, exclude, lambda, aisleCap, exploreEvery, now, seed }): RecItem[]
+moreLikeThis(films, seedId, signals?, k): RecItem[]          // "Because you loved X"
+personalRows(films, signals, name): { id, title, items }[]   // TOP PICKS FOR ALEX · BECAUSE YOU LOVED … · YOUR CREW IS INTO · TRENDING NOW
+rankShelf(shelf, allFilms, signals): Film[]                  // personalise any aisle's order
+trendingFallback(catalogue, k) · staffPicks(friends, catalogue) · signalsFrom(me, friends, myFavs, myTop)
 ```
 
-**Candidates:** every catalogue film not in `userFavs`, `watched` or `exclude`, filtered by mood when one is given (`laugh` → comedy/animated, `scare` → horror, `date` → romance/comedy/drama, `mind` → scifi/cult/drama with rating ≥ 7.2).
+**Pipeline**
+1. **Signals:** implicit feedback with strengths and time decay (half-life 14 days): #1 fave 1.5 · fave 1.0 · watch 0.9 · open 0.25.
+2. **Candidate scores** (each normalised to 0..1):
+   - **taste:** cosine between the film's feature vector and the user's taste profile. Features: genres, decade, aisle, director, top-3 cast, movie/TV.
+   - **cf:** item-item collaborative filtering over everyone's positives, `co(i,j) / sqrt(n_i * n_j)` shrunk by `co/(co+2)` so tiny counts can't dominate.
+   - **crew:** friends' positives weighted by user-user affinity (0.35 floor + Jaccard overlap + taste closeness).
+   - **prior:** Bayesian-average rating (m = 400 votes, C = 6.6) plus a trending bump.
+3. **Blend:** taste .36 · cf .24 · crew .22 · prior .18, re-weighted when data is missing (cold start leans on crew + prior).
+4. **Re-rank:** MMR (lambda 0.72) for diversity, a per-aisle cap (ceil(k/4)), and every 6th slot an **exploration** pick from outside the user's usual aisles. Opened twice but never faved gets a small fatigue penalty.
+5. **Explain:** `reasonType` (`crew` · `taste` · `fresh` · `quality` · `mood`) plus a reason: `MAYA'S #1 PICK` · `MAYA + 2 OTHERS LOVE THIS` · `BECAUSE YOU LOVED INCEPTION` · `FANS OF ALIEN LOVE THIS` · `TRENDING THIS WEEK` · `CRITICS' CHOICE` · `OUTSIDE YOUR USUAL · CRITICS LOVE IT`. Strong social proof (a friend's #1 or 2+ friends) always leads.
 
-**Score** (sum):
-
-| Signal | Points |
-|---|---|
-| Each friend who faves it | +3 (another +2 if it's their #1) |
-| Aisle affinity | +2 × (share of the user's faves in this aisle) |
-| Genre overlap with the user's faves | +0.5 per shared genre id, cap +2 |
-| Quality | +(rating − 6.5) × 0.6 |
-| Low confidence | −1 if votes < 300 |
-| Trending | +0.5 |
-
-Tie-break on votes desc. **Diversity:** at most 4 per aisle in the final list.
-
-**`reason`** (uppercase, ≤ 32 chars, first match wins): `MAYA'S #1 PICK` · `MAYA + 2 OTHERS LOVE THIS` · `MAYA LOVES THIS` · `BECAUSE YOU LIKE SCI-FI` · `TRENDING THIS WEEK` · `CRITICS' CHOICE`. **`friends`** holds the names of friends who fave it.
-
-**Fallback rules**
-- No favourites and no friends: `trendingFallback()` (trending sorted by rating, reason `TRENDING THIS WEEK`), with `fallback:true`.
-- Supabase unreachable: the same, with `fallback:true`.
-- Fewer than 6 scored items: pad with trending, skipping duplicates.
-- YOUR SHELF never renders empty. Even with a dead catalogue fetch, the client pads from `mocks.ts`.
+**Fallbacks:** no data → `trendingFallback()` with `fallback:true`; Supabase down → the same. `api.recs()` already runs the engine client-side over the loaded catalogue + demo friends, so YOUR SHELF is personalised even with no backend. **BE3 now only needs the route** (`/api/recs` builds `Signals` from the DB and calls `recommend()`).
 
 ---
 
-## 7. RICO (`POST /api/rico`)
+## 7. RICO (`POST /api/rico`): £0, no LLM, no API key
 
-Files: `src/app/api/rico/route.ts`, `src/lib/server/openai.ts` (client, `import 'server-only'`), `src/lib/server/rico-prompt.ts`, and `src/lib/rico-fallback.ts` (isomorphic, no secrets).
+RICO **feels** like AI but is our recommendation engine plus a hand-written line bank (a decision from THE VAULT kit). No credits, no keys, no latency, nothing that can fail on stage.
+
+Files: `src/app/api/rico/route.ts`, `src/lib/rico-lines.ts` (isomorphic line bank + `localRicoPick()`, so the client can run the same logic offline).
 
 **Flow**
-1. Load the user's favourites and the store's friends (skip if `userId` is null or the DB is down).
-2. `candidates = scoreRecs({ …, mood, exclude }, 30)`. If that's empty, use `trendingFallback(30)`.
-3. Call OpenAI with **structured output** (JSON schema, strict) and a server-side `AbortSignal.timeout(5000)`. The prompt contains only: the user's name, their fav titles (max 5), the mood, and the candidate list as compact lines `id|title|year|aisle|rating|friends|overview≤100 chars`.
-4. Response schema:
-   ```json
-   { "filmId": "integer", "line": "string ≤ 140 chars", "reason": "string ≤ 60 chars", "backups": "integer[3]" }
-   ```
-5. **Validate:** `filmId` must be in `candidates` or we fall back. Keep only `backups` that are in `candidates` and not the pick, then pad from the candidates. Trim `line` to 140 chars.
-6. Log `events(kind='rico', film_id, meta:{ mood, fallback })` without awaiting it.
-7. Return `RicoRes` with `fallback:false`.
+1. Candidates: `recommend()` for the user, top 40, with the mood filter (`laugh` → comedy/animated, `scare` → horror, `date` → romance/comedy/drama, `mind` → scifi/cult/drama rated 7.2+), minus `exclude` (films already tossed this session).
+2. Pick: weighted random from the **top 5** (weights 5,4,3,2,1), so re-rolls differ but stay good.
+3. Line: a random template from the pick's `reasonType` bucket (`crew` · `taste` · `fresh` · `quality` · `mood`), slots `{title}` `{year}` `{friend}` `{friends}` `{aisle}` `{name}`. Skip `crew` templates if no friend loves it. Under 22 words each (it's typed out). At least 4 per bucket.
+4. Log `events(kind='rico', film_id, meta:{ mood })` without awaiting. Return `{ filmId, line, reason, backups: [two other top-5 ids], fallback: false }`.
+5. 0 favourites and no crew data → trending + the `fresh` bucket. **Always 200, always under 50ms.**
 
-**Persona (system prompt gist):** *You are RICO, the clerk at STRANDVAULT, a neon video store on a 1986 beach strip. Pastel suit, aviators, toothpick, unshakeable confidence. You recommend exactly one film from the list. Speak in one or two punchy sentences of retro-cool slang, PG-13. If a friend loves the film, name-drop them. Never mention AI, streaming algorithms, real celebrities' private lives, or films outside the list. Output JSON only.*
-
-**Fallback (`localRicoFallback(candidates, mood, friendsMap)`)**, used when any of these happen: no `OPENAI_API_KEY`, timeout, API error, invalid JSON, or a `filmId` outside the candidates:
-- Pick: a weighted random from the top 5 candidates (weights 5,4,3,2,1), so re-rolls vary.
-- Line: from a scripted bank of 16 or more templates, keyed by mood plus a generic set, with `{title}`, `{year}` and `{friend}` slots. Examples: *"{title}. Trust me, kid, this one's got legs."* · *"{friend} wore out the tape on {title}. Your turn."* · *"You want scared? {title}. Lights off. No excuses."*
-- `reason` comes from the `RecItem` reason, and `backups` are the next 3 candidates. Set `fallback:true`.
-- The client wrapper applies the same fallback locally if the route itself is unreachable or takes longer than 6s.
-
-**Abuse guard:** an in-memory per-`userId` limit of 1 request per 1.5s. A throttled request gets the fallback, never an error.
+Example lines: *"{friend} won't shut up about {title}. Tonight you find out why, amigo."* · *"You liked the last one? {title}. Same energy, better jacket."* · *"Everybody's renting {title} this week. Don't be the last guy."*
 
 ---
 
 ## 8. Security checklist
 
-- [ ] `grep -r "SERVICE_ROLE\|OPENAI_API_KEY\|TMDB_TOKEN\|WATCHMODE_KEY" src/` only matches files under `src/lib/server/` and `src/app/api/`.
+- [ ] `grep -r "SERVICE_ROLE\|TMDB_TOKEN\|WATCHMODE_KEY" src/` only matches files under `src/lib/server/` and `src/app/api/`.
 - [ ] Every file in `src/lib/server/` starts with `import 'server-only'`.
 - [ ] RLS is enabled on all three tables, with no anon policies.
 - [ ] Route inputs are length-capped (name 12, exclude ≤ 50 ids) and numeric ids are checked with `Number.isInteger`.

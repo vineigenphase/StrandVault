@@ -1,6 +1,6 @@
 // Catalogue loader + index (BACKEND.md §4.3). Lane BE.
-// T0 version: final signatures, backed by mocks.ts.
-// TODO(BE1): load public/catalogue.json (client: fetch once; server: import JSON), fall back to mocks on failure.
+// Client: fetches /catalogue.json once (written by `npm run db:build`, DATA.md), falls back to mocks.ts
+// if it's missing or broken so nothing ever renders blank. Server routes use lib/server/catalogue.ts.
 import type { Aisle, Film } from './types';
 import { mockFilms } from './mocks';
 
@@ -36,11 +36,23 @@ export function buildCatalogue(films: Film[]): Catalogue {
 let cached: Catalogue | null = null;
 let pending: Promise<Catalogue> | null = null;
 
-/** Client + server: resolves once, memoised. */
+/** Resolves once, memoised. Real catalogue when available, mocks otherwise. */
 export function loadCatalogue(): Promise<Catalogue> {
   if (cached) return Promise.resolve(cached);
-  pending ??= Promise.resolve().then(() => (cached = buildCatalogue(mockFilms)));
+  pending ??= fetchFilms().then((films) => (cached = buildCatalogue(films.length ? films : mockFilms)));
   return pending;
+}
+
+async function fetchFilms(): Promise<Film[]> {
+  if (typeof window === 'undefined') return [];
+  try {
+    const res = await fetch('/catalogue.json', { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const json = (await res.json()) as { films?: Film[] };
+    return Array.isArray(json.films) ? json.films.filter((f) => f && typeof f.id === 'number' && f.title) : [];
+  } catch {
+    return [];
+  }
 }
 
 /** Synchronous access after loadCatalogue() has resolved. */
@@ -48,7 +60,7 @@ export function getCatalogueSync(): Catalogue | null {
   return cached;
 }
 
-/** Server-side, synchronous. */
+/** Mock-backed catalogue (tests, or before the real one has loaded). Server routes: lib/server/catalogue.ts. */
 export function catalogueServer(): Catalogue {
-  return (cached ??= buildCatalogue(mockFilms));
+  return buildCatalogue(mockFilms);
 }

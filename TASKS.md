@@ -10,7 +10,7 @@
 | **0** | solo, ~25 min | **T0** contracts, mocks, event bus, stubs. Blocks everything. |
 | **1** | parallel | ✅ BE1 · ✅ BE2 · ✅ G1 · ✅ G2 · ✅ U1 · ✅ U2 · ✅ U3 |
 | **2** | parallel | ✅ BE3 → BE4 (BE4 after BE3) · ✅ G3 · ✅ G4 · ✅ U4 · ✅ U5 · ✅ U6 |
-| **3** | parallel | ✅ G5 (integration, demo path) · ✅ G6 · ✅ U7 · ✅ BE5 |
+| **3** | parallel | ✅ G5 (integration, demo path) · ✅ G6 · ✅ U7 · ✅ U8 · ✅ BE5 |
 | **4** | everyone | **F1** demo hardening, deploy, rehearsal |
 
 **Why the waves don't conflict:** T0 creates every shared file (types, events bus, `api.ts` signatures, `OverlayRoot`, and component stubs with their final props). Later tasks only fill in files they own. Nobody else edits `OverlayRoot.tsx` or `Game.tsx` after T0, except G5 (integration), which runs last.
@@ -55,16 +55,16 @@
 
 ## Wave 1 (all parallel after T0)
 
-### BE1: Catalogue seed + loaders *(BE · P0 · ~45 min)*
-**Goal:** a real `public/catalogue.json` with ~340 GB films and working watch links.
-**Files:** `scripts/seed-catalogue.ts`, `public/catalogue.json`, `public/posters/*` (optional), `src/lib/catalogue.ts`, `src/lib/links.ts`.
-**Depends on:** T0.
+### BE1: THE VAULT build + loaders *(BE · P0 · ~20 min)* ✅ code merged (agent/vault)
+**Goal:** a real `public/catalogue.json` + `vault-index.json` + Supabase `titles`, and working watch links.
+**Files:** `public/catalogue.json`, `public/vault-index.json`, `public/posters/*` (generated). Code already in: `scripts/build-db.ts`, `supabase/titles.sql`, `src/lib/server/{db,tmdb,titles,catalogue}.ts`, `src/lib/{catalogue,vault,links}.ts`, `/api/search`, `/api/title/[appId]`.
+**Depends on:** a TMDB token + Supabase project in `.env.local` (DATA.md §3).
+**Steps:** run `supabase/titles.sql` → `npm run db:build:quick` (wiring check, ~30s) → `npm run db:build -- --images` → commit the generated JSON (+ posters).
 **Acceptance:**
-- `npm run seed` produces ≥ 300 films, ≥ 30 per aisle, ≥ 15 `trending`, every film has a poster and an aisle, and ≥ 70% have ≥ 1 provider.
-- `npm run seed -- --images` downloads posters and rewrites paths. The site works with images offline.
-- `loadCatalogue()` fetches once (verify in the network tab). `byAisle`, `trending` and `search('ali')` behave as in BACKEND.md §4.3.
-- `watchUrl()` follows the deep link → search URL → TMDB order. Unit-check it from a scratch `tsx` run in the summary.
-- The file is under 1.5 MB and committed.
+- `catalogue.json` has 16 per aisle (≤ 25% TV), every film has a poster, overview and a stream/free provider.
+- `/api/search?q=interstelar` finds Interstellar; `?q=keanu` finds John Wick; with `DEMO_OFFLINE=1` the client still finds titles via `vault-index.json`.
+- `/api/title/-1399` returns Game of Thrones (TV app ids are negative).
+- The store renders the real catalogue (no mock titles) and falls back to mocks if the file is removed.
 
 ### BE2: Supabase schema, clients, core routes, personas *(BE · P0 · ~50 min)*
 **Goal:** persistence for profiles, favourites and events, plus the store-state route.
@@ -140,15 +140,16 @@
 
 ## Wave 2 (parallel; start each as soon as its deps merge)
 
-### BE3: Recs engine + `/api/recs` *(BE · P1 · ~35 min)*
-**Files:** `src/lib/recs.ts`, `src/app/api/recs/route.ts`, `src/lib/api.ts` (the `recs` wrapper only).
-**Depends on:** BE1 (catalogue), BE2 (DB helpers).
-**Acceptance:** scoring, diversity cap, reasons and fallbacks exactly as in BACKEND.md §6. `staffPicks()` is exported. A user with 0 faves gets trending with `fallback:true`. A user whose friend faves X sees X with reason `MAYA LOVES THIS`. Pure functions with no I/O in `recs.ts`.
+### BE3: `/api/recs` route *(BE · P1 · ~20 min)*
+**The engine is built** (`src/lib/recs.ts`, BACKEND.md §6, verified). This task is only the route.
+**Files:** `src/app/api/recs/route.ts`, `src/lib/api.ts` (the `recs` wrapper only: fetch the route first, keep the local engine as fallback).
+**Depends on:** BE2 (DB helpers). Uses `serverCatalogue()` from `lib/server/catalogue.ts`.
+**Acceptance:** builds `Signals` from `favourites` + `events` (watch/open, with `created_at` as `at`) + store friends' names, calls `recommend(films, signals, { k: 18 })`, returns `RecsRes`. A user with 0 faves gets `trendingFallback()` with `fallback:true`. DB down → same fallback, never a 500. Also expose `GET /api/recs?userId=&rows=1` → `personalRows()` for YOUR SHELF rows.
 
-### BE4: RICO route *(BE · P1 · ~40 min)*
-**Files:** `src/app/api/rico/route.ts`, `src/lib/server/openai.ts`, `src/lib/server/rico-prompt.ts`, `src/lib/rico-fallback.ts`, `src/lib/api.ts` (the `rico` wrapper only).
-**Depends on:** BE3 (`scoreRecs`). It can start in parallel against a `trendingFallback` stub, but merges after BE3.
-**Acceptance:** structured output validated per BACKEND.md §7. With `OPENAI_API_KEY` unset → 200 with `fallback:true`. With a forced 10s delay → fallback within 6s on the client. Mood re-rolls stay within their mood. Re-rolling 5 times gives at least 3 distinct films. 16+ scripted lines.
+### BE4: RICO route, £0 *(BE · P1 · ~30 min)*
+**Files:** `src/app/api/rico/route.ts`, `src/lib/rico-lines.ts` (isomorphic line bank + `localRicoPick()`), `src/lib/api.ts` (the `rico` wrapper only).
+**Depends on:** BE3 (or call `recommend()` directly; it's merged).
+**Acceptance:** exactly BACKEND.md §7: no LLM, no key. Mood re-rolls stay within their mood; 5 re-rolls give ≥ 3 distinct films (weighted top-5 + `exclude`); ≥ 4 lines per reason bucket; always 200 in under 50ms; the client wrapper runs `localRicoPick()` if the route is unreachable.
 
 ### G3: Multiplayer *(GAME · P0 · ~60 min)*
 **Goal:** friends walk the same store live, with spawn glitch, toasts, and hover/tap fav bubbles.
@@ -201,6 +202,12 @@
 **Files:** `src/game/npc.ts`.
 **Depends on:** G3, BE2 (persona IDs).
 **Acceptance:** with `?npcs=1` on the host only, 3 personas (`isDemo:true`, tag `DEMO`) wander between sections, pause at shelves, occasionally broadcast `open`, and stop when the tab is hidden.
+
+### U8: Vault search kiosk *(UI · P1 · ~40 min)*
+**Goal:** search ANY movie or show (THE VAULT) from inside the store.
+**Files:** `src/components/vault/VaultTerminal.tsx`, `src/components/vault/VaultResults.tsx`.
+**Depends on:** vault code (merged). Mounted by G5 on `{ type: 'open-search' }` (a CRT kiosk near the entrance, or the HUD).
+**Acceptance:** a CRT-styled input with debounced `searchVault(q)` (250ms), results as a disc-case grid (TV shows as box sets with seasons), keyboard + touch friendly, loading shimmer and an empty state ("NO TAPE FOUND. TRY ANOTHER TITLE"). Picking a result calls `getTitle(id)` then emits `open-film` with source `search`. Never shows an error.
 
 ### U7: Polish pack *(UI · P2 · ~40 min)*
 **Files:** `public/audio/*` (royalty-free only, with licences noted in the summary), `src/components/fx/Sound.tsx`, emote UI in `src/components/hud/Emotes.tsx`.
